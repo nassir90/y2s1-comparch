@@ -1,0 +1,5 @@
+[% defpackage :b-logic
+   (:use :cl)
+   (:export :ports :entity :tb :name) %]
+[% in-package :b-logic %]
+[% defun name () "B_Logic_21364466" %]

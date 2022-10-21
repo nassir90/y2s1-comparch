@@ -1,0 +1,28 @@
+[%! "common.intralisp" %]
+[% defpackage :mux
+   (:use :cl)
+   (:export :data-lines
+            :size
+            :select-lines
+            :name
+            :ports
+            :entity
+            :tb) %]
+[% in-package :mux %]
+[% defvar data-lines 32 %]
+[% defvar size 32 %]
+[% defvar select-lines (truncate (log data-lines 2)) %]
+[% defun name () (format nil "RF_Mux~d_~dBit_21364466" data-lines size) %]
+[% defun ports (&optional common:mode
+                &key d q sel start end subs
+                &aux (common:subs subs))
+"d is a function that takes an integer and prints a string to standard out.
+sel is just a string"
+(common:port-header)[@
+@]
+(loop for i from (or start 0) to (or end (1- data-lines)) do
+[@    [% common:port (format nil "D~d" i) :size size :map-to (if d (funcall d i) (format nil "D~d" i)) %]
+@])
+[@    [% common:port "Q" :direction "out" :map-to (or q "Q") :size size :map-to (or q "Q" ) %]
+@]
+[@    [% common:port "sel" :map-to (or sel "sel") :size select-lines :end "" %]);@]%]

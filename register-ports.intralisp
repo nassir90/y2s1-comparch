@@ -1,0 +1,10 @@
+[%! "register.intralisp" %]
+[% in-package :register %]
+[% defun ports (&optional mode &key en d q)
+(let ((common:mode mode))
+(common:port-header)
+[@
+    [% common:port "EN" :map-to (or en "EN") %]
+    [% unless (eq mode :signals) (common:port "CLK") %]
+    [% common:port "D" :map-to (or d "D") :size size %]
+    [% common:port "Q" :map-to (or q "Q") :size size :direction "out" :end ");" %]@])%]

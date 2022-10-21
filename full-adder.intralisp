@@ -1,0 +1,16 @@
+[%! "common.intralisp" %]
+[% defpackage :full-adder
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :full-adder %]
+[% defun name () "RF_FullAdder_21364466" %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" %] 
+     [% common:port "A" %] 
+     [% common:port "C_IN" %] 
+     [% common:port "SUM" %] 
+     [% common:port "C_OUT" :end "" %][% common:port-trailer %]@]%]

@@ -1,0 +1,51 @@
+[%! "register-file.intralisp" %]
+[%! "register-file-ports.intralisp" %]
+[% in-package :register-file %]
+[% defun tb ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%= name %]_TB is
+end [%= name %]_TB;
+
+architecture Behavioural of [%=name%]_TB is
+component [%=name%] is [%ports%]
+end component;
+[% ports :signals  %]
+[% common:define-clock %]
+begin
+[% common:alternate-clock %]
+uut: [%=name%] [%ports :uut%]
+stim_proc: process
+begin
+    RW <= '1';
+    TD <= "[%=~ "~4,'0b" 0 %]";
+-- Demonstrate the setting of non-temporary registers
+[% dotimes (i register-file:registers)
+[@    wait until falling_edge(CLK);
+    D <= "[%=~ "~32,'0b" (+ 21364466 i) %]";
+    DR <= "[%=~ "~5,'0b" i %]";
+
+@]%]
+
+-- Demonstrate the setting of non-temporary registers
+    
+[% loop for i from 1 below  register-file:temp-registers do
+[@    wait until falling_edge(CLK);
+    D <= "[%=~ "~32,'0b" (+ 21364466 32 i) %]";
+    TD <= "[%=~ "~4,'0b" i %]";
+
+@]%]
+
+-- Demonstrate that manipulating DR has no effect when TD is non-zero
+[% loop for i from 0 below  4 do
+[@    wait until falling_edge(CLK);
+    DR <= "[%=~ "~5,'0b" i %]";
+
+@]%]
+
+    RW <= '0';
+    [% common:end-test %]
+end process;
+end Behavioural;
+@]%]

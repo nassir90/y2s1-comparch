@@ -1,0 +1,18 @@
+[%! "mux.intralisp" %]
+[%! "mux-ports.intralisp" %]
+[%! "register.intralisp" %]
+[% in-package :mux %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture [%~ name %]_impl of [%~ name %] is
+begin
+with sel select Q <=
+[%dotimes (i data-lines) 
+[@    D[%=i%] after 5 ns when [%~ common:wrap [@^[%=~ "~v,'0b" select-lines i %]@]%],
+@]%]    [%~ common:wrap 0 :size size %] when others;
+end [%~ name %]_impl;@]%]

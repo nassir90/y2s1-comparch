@@ -1,0 +1,13 @@
+[%! "common.intralisp" %]
+[% defpackage :register
+(:use :cl)
+(:export :size
+         :name
+         :start-undefined
+         :ports
+         :entity
+         :tb)%]
+[% in-package :register %]
+[% defvar size 32 %]
+[% defvar start-undefined t %]
+[% defun name () [@^RF_Register[%=size%]Bit_21364466@] %]

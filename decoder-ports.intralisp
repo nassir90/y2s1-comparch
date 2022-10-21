@@ -1,0 +1,13 @@
+[%! "decoder.intralisp" %]
+[% in-package :decoder %]
+[% defun ports (&optional mode &key i o)
+(let ((common:mode mode))
+(common:port-header)
+(dotimes (j input-lines) [@
+    [% common:port (format nil "I~a" j)
+                    :map-to (if i (funcall i j) (format nil "I~d" j)) %]@])
+(dotimes (j output-lines) [@
+    [% common:port [@^O[%=j%]@]
+                          :direction "out"
+                          :map-to (if o (funcall o j) (format nil "O~d" j))
+                          :end (when (= j (1- output-lines)) ");")%]@]))%]

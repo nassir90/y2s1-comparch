@@ -1,0 +1,18 @@
+[%! "decoder.intralisp" %]
+[%! "decoder-ports.intralisp" %]
+[% in-package :decoder %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture [%~ name %]_impl of [%~ name %] is
+begin
+[% dotimes (i output-lines)
+[@        O[%=i%] <= [% dotimes (j input-lines)
+        (when (= 0 (logand (expt 2 j) i)) [@not @])
+        (format t "I~d" j)
+        (unless (= j (- input-lines 1)) [@ and @])%] after 5 ns;
+@]%]
+end [%~ name %]_impl;@]%]

@@ -1,0 +1,7 @@
+[%! "common.intralisp" %]
+[% defpackage :logic-bitslice
+   (:use :cl)
+   (:export :ports
+            :name :entity :tb) %]
+[% in-package :logic-bitslice %]
+[% defun name () "RF_LogicBitslice_21364466" %]

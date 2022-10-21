@@ -1,0 +1,14 @@
+[%! "common.intralisp" %]
+[%! "register.intralisp" %]
+[% defpackage :register-file
+ (:use :cl)
+ (:export :registers
+          :temp-registers
+          :ports
+          :name
+          :entity
+          :tb) %]
+[% in-package :register-file %]
+[% defvar registers 32 %]
+[% defvar temp-registers 16 %]
+[% defvar name (format nil "RF_RegisterFile_~d_~d_21364466" registers temp-registers ) %]

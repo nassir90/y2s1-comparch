@@ -1,0 +1,93 @@
+[%! "mux-ports.intralisp" %]
+[%! "decoder-ports.intralisp" %]
+[%! "register-ports.intralisp" %]
+[%! "register-file-ports.intralisp" %]
+[% in-package :register-file %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%= register-file:name %] is [% register-file:ports %]
+end [%= register-file:name %];
+
+architecture [%= register-file:name %]_impl of [%= register-file:name %] is
+component [%~ register:name %] [% register:ports %]
+end component;
+    -- 32 bit mux
+[% let ((mux:data-lines 32) (mux:select-lines 5))
+[@component [%~ mux:name %] is [% mux:ports %]
+end component;@]%]
+    -- 16 bit mux
+[% let ((mux:data-lines 16) (mux:select-lines 4))
+[@component [%~ mux:name %] is [% mux:ports %]
+end component;@]%]
+    -- 4 to 16 bit decoder
+[% let ((decoder:output-lines 16) (decoder:input-lines 4))
+[@component [%~ decoder:name %] is [% decoder:ports %]
+end component;@]%]
+    -- 5 to 32 bit decoder
+[% let ((decoder:output-lines 32) (decoder:input-lines 5))
+[@component [%~ decoder:name %] is [% decoder:ports %]
+end component;@]%]
+    -- Define enable signals corresponding to the outputs of the registers
+[%dotimes (i register-file:registers)
+[@    signal EN[%=i%]_32 : std_logic;
+@]%]
+    -- Also define 'effective' enable signals signals corresponding to RW AND TD
+    -- EQUAL ZERO AND DR = X.
+[%dotimes (i register-file:registers)
+[@    signal Effective_EN[%=i%]_32 : std_logic;
+@]%]
+    -- Define enable signals corresponding to the outputs of the temporary registers
+[%dotimes (i register-file:temp-registers)
+[@    signal EN[%=i%]_32_Temp : std_logic;
+@]%]
+    -- Also define 'effective' enable signals corresponding to RW AND
+    -- TD NOT EQUAL ZERO AND TD = X
+[%dotimes (i register-file:temp-registers)
+[@    signal Effective_EN[%=i%]_32_Temp : std_logic;
+@]%]
+    -- Define D signals corresponding to the outputs of the registers
+[%dotimes (i register-file:registers)
+[@    signal Q[%=i%]_32 : std_logic_vector([%~ 1- register:size %] downto 0);
+@]%]
+    -- Define D signals corresponding to the outputs of the temporary registers
+[% loop for i from 1 below register-file:temp-registers do
+[@    signal Q[%=i%]_32_Temp : std_logic_vector([%~ 1- register:size %] downto 0);
+@]%]
+signal QA_32 : std_logic_vector([%~ 1- register:size %] downto 0);
+signal QB_32 : std_logic_vector([%~ 1- register:size %] downto 0);
+begin
+[% let ((decoder:output-lines 32) (decoder:input-lines 5))
+[@    DestReg_Decoder: [%~ decoder:name %] [% decoder:ports :uut
+                                              :i (lambda (i) [@^DR([%=i%])@])
+                                              :o (lambda (i) [@^EN[%=i%]_32@]) %]@]%]
+[% let ((decoder:output-lines 16) (decoder:input-lines 4))
+[@    DestTempReg_Decoder: [%~ decoder:name %] [% decoder:ports :uut
+                                              :i (lambda (i) [@^TD([%=i%])@])
+                                              :o (lambda (i) [@^EN[%=i%]_32_Temp@]) %]@]%] 
+[% let ((mux:data-lines 16) (mux:select-lines 4)) [@
+ Mux_16_A: [%~ mux:name %] [% mux:ports :uut :q "A" :sel "TA" :d (lambda (i) (if (= i 0) "QA_32" [@^Q[%=i%]_32_temp@])) %]
+ Mux_16_B: [%~ mux:name %] [% mux:ports :uut :q "B" :sel "TB" :d (lambda (i) (if (= i 0) "QB_32" [@^Q[%=i%]_32_temp@])) %]@]%]
+[% let ((mux:data-lines 32)
+        (mux:select-lines 5)) [@
+ Mux_32_A: [%~ mux:name %] [% mux:ports :uut :q "QA_32" :sel "SA" :d (lambda (i) [@^Q[%=i%]_32@]) %]
+ Mux_32_B: [%~ mux:name %] [% mux:ports :uut :q "QB_32" :sel "SB" :d (lambda (i) [@^Q[%=i%]_32@]) %]@]%]
+
+    -- Define regular registers
+[% dotimes (i register-file:registers)
+[@  Register[%=i%]: [%~ register:name %] [% register:ports :uut :en [@^Effective_EN[%=i%]_32@] :q [@^Q[%=i%]_32@] %]
+@]%]
+    -- Define temp registers
+[% loop for i from 1 below register-file:temp-registers
+do [@  TempRegister[%=i%]: [%~ register:name %] [% register:ports :uut :en [@^Effective_EN[%=i%]_32_temp@] :q [@^Q[%=i%]_32_temp@]  %]
+@]%]
+
+    Effective_EN0_32_temp <= '0';
+[% loop for i from 1 below register-file:temp-registers do
+[@    Effective_EN[%=i%]_32_Temp <= RW and EN[%=i%]_32_Temp after 5 ns;
+@]%]
+[% loop for i from 0 below register-file:registers do
+[@    Effective_EN[%=i%]_32 <= RW and EN[%=i%]_32 and EN0_32_Temp after 5 ns;
+@]%]
+end [%= register-file:name %]_impl;@]%]

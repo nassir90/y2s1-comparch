@@ -1,0 +1,34 @@
+[%! "decoder.intralisp" %]
+[%! "decoder-ports.intralisp" %]
+[% in-package :decoder %]
+[% defun tb ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %]_TB is
+end [%~ name %]_TB;
+
+architecture Behavioural of [%~ name %]_TB is 
+component [%~ name %] is [% ports %]
+end component;
+[% common:define-clock %]
+[% ports :signals %]
+begin
+[% common:alternate-clock %]
+uut: [%~ name %] [% ports :uut %]
+stim_proc: process
+begin
+[% dotimes (i output-lines)
+[@    -- Send a high signal to the [%=~ "~:r" (1+ i) %] bit
+    wait until falling_edge(CLK);
+@]
+(dotimes (j input-lines)
+[@    I[%=j%] <= '[%~ if (= 0 (logand (expt 2 j) i)) "0" "1" %]';
+@]
+)
+[@
+@]
+%]
+    [% common:end-test %]
+end process;
+end Behavioural;@]%]

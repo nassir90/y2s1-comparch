@@ -1,0 +1,88 @@
+[%! "test-register-file-ports.intralisp" %]
+[% in-package :test-register-file %]
+[% defun tb ()
+[@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name%]_TB is 
+end [%~ name %]_TB;
+
+architecture Behavioural of [%~ name %]_TB is
+component [%~ name %] is [% ports %]
+end component;
+
+  [% common:define-clock %]
+[% ports :signals %]
+begin
+
+uut: [%~ name %] [% ports :uut %]
+
+  [% common:alternate-clock %]
+stim_proc: process
+  begin
+    RW_Test <= '1';
+    A_B_DataIN_Test <= "10";
+    TD_Test <= "[%=~ "~4,'0b" 0 %]";
+    TB_Test <= "[%=~ "~4,'0b" 0 %]";
+    TA_Test <= "[%=~ "~4,'0b" 0 %]";
+    SB_Test <= "[%=~ "~5,'0b" 0 %]";
+    SA_Test <= "[%=~ "~5,'0b" 0 %]";
+    
+-- Demonstrate the setting of registers
+[% dotimes (i register-file:registers)
+[@    wait until falling_edge(CLK);
+    D_Test <= "[%=~ "~32,'0b" (+ i 21364466)  %]";
+    DR_Test <= "[%=~ "~5,'0b" i %]";
+@]%]
+
+-- Demonstrate the setting of temporary registers
+[% loop for i from 1 below register-file:temp-registers do
+[@    wait until falling_edge(CLK);
+    D_Test <= "[%=~ "~32,'0b" (+ i 32 21364466)  %]";
+    TD_Test <= "[%=~ "~4,'0b" i %]";
+@]%]
+    wait until rising_edge(CLK);
+
+-- Read from all normal registers
+   RW_Test <= '0';
+   TA_Test <= "0000";
+[% dotimes (i register-file:registers)
+[@    wait until falling_edge(CLK);
+    SA_Test <= "[%=~ "~5,'0b" i %]";
+@]%]
+
+-- Read from all temporary registers
+[% loop for i from 1 below register-file:temp-registers do
+[@    wait until falling_edge(CLK);
+    TA_Test <= "[%=~ "~4,'0b" i %]";
+@]%]
+
+-- Demonstrate moving the contents of first four registers to the last four registers
+   TD_Test <= "0000"; -- Set TD select lines to zero so effective enable is high for register 
+   TA_Test <= "0000"; -- Set this to zero so that QA is selected
+   TB_Test <= "0000"; -- Set this to zero so that QA is selected
+   A_B_DataIN_Test <= "00"; -- Transfer from A port
+[% loop for i from 0 below 4 do
+[@    -- Transfer the [%=~ "~:r" (1+ i) %] to the [%=~ "~:r" (- register-file:registers i) %]
+    wait until falling_edge(CLK);
+    RW_Test <= '1';
+    SA_Test <= "[%=~ "~5,'0b" i %]";
+    DR_Test <= "[%=~ "~5,'0b" (- register-file:registers i 1) %]";
+@]%]
+    
+-- Demonstrate moving the contents of the last four registers back to the first four registers
+   wait until falling_edge(CLK);
+   A_B_DataIN_Test <= "01"; -- Transfer from B port
+   RW_Test <= '0';
+[% loop for i from 3 below 8 do
+[@    -- Transfer the [%=~ "~:r" (1+ i) %] to the [%=~ "~:r" (- register-file:registers i) %]
+    wait until falling_edge(CLK);
+    RW_Test <= '1';
+    SB_Test <= "[%=~ "~5,'0b" (- register-file:registers i 1) %]";
+    DR_Test <= "[%=~ "~5,'0b" i %]";
+@]%]
+    
+ [% common:end-test %]
+end process;                 
+end Behavioural;@]%]

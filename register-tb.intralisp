@@ -1,0 +1,28 @@
+[%! "register-ports.intralisp" %]
+[% in-package :register %]
+[% defun tb ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %]_TB is
+end entity;
+
+architecture Behavioral of [%~ name %]_TB is
+component [%~ name %] is [% ports %]
+end component;
+[% ports :signals %]
+
+[% common:define-clock %]
+begin
+[% common:alternate-clock %]
+   uut: [%~ name %] [% ports :uut %]
+   EN <= '1';
+stim_proc: process begin
+    wait until falling_edge(CLK);
+    D <= "[%=~ "~32,'0b" 0 %]";
+    wait until falling_edge(CLK);
+    D <= "[%=~ "~32,'0b" 21364466 %]";
+    [% common:end-test %]
+end process;
+end Behavioral;
+@]%]

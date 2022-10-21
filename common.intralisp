@@ -1,0 +1,39 @@
+[% defpackage :common
+   (:use :cl)
+   (:export :port-header :port-trailer
+            :port :mode :subs
+            :clock-period :define-clock :alternate-clock
+            :end-test
+            :wrap) %]
+[% in-package :common %]
+[% defvar clock-period "100 ns" %]
+[% defvar mode nil %]
+[% defvar subs nil %]
+[% defun wrap (constant &key size) (if size (wrap [@^[%=~ "~v,'0b" size constant%]@])
+                                       (if (= 1 (length constant))
+                                           [@^'[%=constant%]'@]
+                                           [@^"[%=constant%]"@])) %]
+[% defun port-header () (unless (eq mode :signals) [@port [%~ if mode "map (" "(" %] @])%]
+[% defun port-trailer () (when (not (eq mode :signals)) [@[%= ");" %]@]) %]
+[% defun sub (string)
+(let ((sub (cdr (assoc string subs :test #'equal))))
+     (when sub (if (functionp sub) (funcall sub string) sub)))%]
+[% defun port-type (size) (if (= size 1) [@^std_logic@] [@^std_logic_vector([%~ 1- (truncate size) %] downto 0)@]) %]
+[% defun port (name &key map-to (direction "in") end (size 1) init)
+ (case mode
+  (:uut [@[%=name%] => [%~ or (sub name) map-to name %][%~ or end "," %]@])
+  (:signals [@signal [%~ or (sub name) name %] : [%~ port-type size %][% when init [@ := [%~ if (numberp init) (wrap (mod init (expt 2 size)) :size size) (wrap init) %]@]%];@])
+  (t [@[%=name%] : [%=direction%] [%~ port-type size %][%~ or end ";" %]@]))%]
+[% defun define-clock ()
+[@    constant CLOCK_PERIOD : time := [%= clock-period %];
+    signal CLK : std_logic := '0';
+    signal RUNNING : std_logic := '1';
+@]%]
+[% defun alternate-clock ()
+[@    CLK <= RUNNING and not CLK after CLOCK_PERIOD / 2;
+@]%]
+[% defun end-test (&key (clocked t)) [@[% when clocked [@wait until rising_edge(CLK);
+wait until falling_edge(CLK);
+RUNNING <= '0';@]%]
+assert false report "Test complete" severity note;
+wait;@]%]

@@ -1,0 +1,35 @@
+[%! "register-file.intralisp" %]
+[%! "register-file-ports.intralisp" %]
+[%! "test-register-file-ports.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "mux-ports.intralisp" %]
+[% in-package :test-register-file %]
+[% defun suffix-test (port) `(,port . ,[@^[%=port%]_test@]) %]
+[% defun register-file-subs () (append '(("D" . "Z") ("A" . "In00") ("B" . "In01") ("D_Test" . "In02")) (mapcar #'suffix-test '("SA" "SB" "DR" "TD" "TB" "TA" "RW"))) %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture Behavioural of [%~ name %] is
+component [%= register-file:name %] is [% register-file:ports %]
+end component;
+[% let ((mux:data-lines 3) (mux:select-lines 2))
+[@component [%~ mux:name %] is [% mux:ports %]
+end component;@]%]
+
+    [% loop for signal in '("In00" "Z" "In01" "In02") do [@
+    signal [%= signal %] : std_logic_vector([%~ 1- register:size %] downto 0);@]%]
+begin
+    In02 <= D_Test;
+[% let ((mux:data-lines 3) (mux:select-lines 3))
+[@mux: [%~ mux:name %]  [% mux:ports :uut
+                           :sel "A_B_DataIN_Test"
+                           :q "Z"
+                           :d (lambda (i) [@^In0[%=i%]@]) %]@]%]
+                                 
+RegFile: [%= register-file:name %] [% register-file:ports :uut :subs (register-file-subs) %]
+end Behavioural;
+@]%]

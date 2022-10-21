@@ -1,0 +1,10 @@
+[%! "common.intralisp" %]
+[%! "register-file.intralisp" %]
+[% defpackage :test-register-file
+  (:use :cl)
+  (:export :tb
+           :ports
+           :entity
+           :name) %]
+[% in-package :test-register-file %]
+[% defun name () [@^RF_Test_RegisterFile_[%=register-file:registers%]_[%~1- register-file:temp-registers%]_21364466@] %]

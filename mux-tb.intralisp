@@ -1,0 +1,40 @@
+[%! "mux.intralisp" %]
+[%! "mux-ports.intralisp" %]
+[%! "register.intralisp" %]
+[% in-package :mux %]
+[% defun tb (&key i-select-lines i-data-lines i-size)
+(let ((mux:select-lines (or i-select-lines mux:select-lines))
+      (mux:size (or i-size mux:size))
+      (mux:data-lines (or i-data-lines mux:data-lines)))
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ mux:name %]_TB is
+end [%~ mux:name %]_TB;
+
+architecture Behavioural of [%~ mux:name %]_TB is 
+component [%~ mux:name %] is [% mux:ports %]
+end component;
+[% common:define-clock %]
+[% let ((common:mode :signals))
+(dotimes (i mux:data-lines)
+   (fresh-line) [@    @]
+   (common:port [@^D[%=i%]@] :init ( + i 21364466 ) :size mux:size :end [@^[%~ common:wrap [@^[%=~ "~v,'0b" mux:size i %]@]%];@]))
+   (fresh-line) [@    @] (common:port "sel" :size mux:select-lines)
+   (fresh-line) [@    @] (common:port "Q" :size mux:size)
+%]
+begin
+[% common:alternate-clock %]
+uut: [%~ mux:name %] [% mux:ports :uut %]
+stim_proc: process
+begin
+[% dotimes (i mux:data-lines) [@
+    wait until falling_edge(CLK);
+    sel <= [%~ common:wrap (format nil "~v,'0b" mux:select-lines 0)%]; -- Set input line to zero
+    wait until falling_edge(CLK);
+    sel <= [%~ common:wrap (format nil "~v,'0b" mux:select-lines i)%]; -- Use the [%=~ "~:r" (1+ i) %] input
+
+@]%]
+[% common:end-test %]
+end process;
+end Behavioural;@])%]

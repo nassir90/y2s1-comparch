@@ -1,0 +1,13 @@
+[%! "common.intralisp" %]
+[% defpackage :decoder
+(:use :cl)
+(:export :output-lines
+         :input-lines
+         :name
+         :ports
+         :entity
+         :tb) %]
+[% in-package :decoder %]
+[% defvar output-lines 32 %]
+[% defvar input-lines (truncate (log output-lines 2)) %]
+[% defun name () (format nil "Decoder_~dto~d_21364466" input-lines output-lines) %]

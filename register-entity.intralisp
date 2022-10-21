@@ -1,0 +1,20 @@
+[%! "register-ports.intralisp" %]
+[% in-package :register %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture [%~ name %]_impl of [%~ name %] is
+signal state : std_logic_vector([%~ 1- size %] downto 0)[% unless start-undefined [@
+    := "[% dotimes (i size) [@0@] %]"@] %];
+begin
+stim_proc: process (CLK, EN)
+begin
+    if CLK'event and CLK='1'and EN='1' then
+        state <= D after 5 ns;
+    end if;
+end process stim_proc;
+Q <= state;
+end [%~ name %]_impl;@]%]
