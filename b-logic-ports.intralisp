@@ -1,8 +1,0 @@
-[%! "b-logic.intralisp" %]
-[%! "common.intralisp" %]
-[% in-package :b-logic %]
-[% defun ports (&optional common:mode) [@
-[% common:port-header %]
-    [% common:port "S" :size 2 %] 
-    [% common:port "A" %] 
-    [% common:port "Q" :direction "out" :end ""%][% common:port-trailer %]@]%]

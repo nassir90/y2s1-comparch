@@ -1,7 +1,0 @@
-[%! "logic-bitslice.intralisp" %]
-[% in-package :logic-bitslice %]
-[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
-(common:port-header)
-[@[% dolist (port '("A0" "A1")) (fresh-line) [@    @] (common:port port) %]
-    [% common:port "S" :size 2 %]
-    [% common:port "G" :direction "out" :end ""%][% common:port-trailer %]@]%]
