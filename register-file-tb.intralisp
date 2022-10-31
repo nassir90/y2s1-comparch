@@ -1,5 +1,5 @@
 [%! "register-file.intralisp" %]
-[%! "register-file-ports.intralisp" %]
+[%! "register-file.intralisp" %]
 [% in-package :register-file %]
 [% defun tb ()
 [@library ieee;
@@ -29,7 +29,6 @@ begin
 @]%]
 
 -- Demonstrate the setting of non-temporary registers
-    
 [% loop for i from 1 below  register-file:temp-registers do
 [@    wait until falling_edge(CLK);
     D <= "[%=~ "~32,'0b" (+ 21364466 32 i) %]";
@@ -37,14 +36,27 @@ begin
 
 @]%]
 
--- Demonstrate that manipulating DR has no effect when TD is non-zero
-[% loop for i from 0 below  4 do
-[@    wait until falling_edge(CLK);
-    DR <= "[%=~ "~5,'0b" i %]";
+        wait until falling_edge(CLK);
+    RW <= '0';
 
+-- Demonstrate reading from normal registers vi A port
+   TD <= "0000";
+   TA <= "0000";
+   TB <= "0000";
+   SB <= "00000";
+[% loop for i from 0 below register-file:registers do
+[@    wait until falling_edge(CLK);
+      SA <= "[%=~ "~5,'0b" i %]";
 @]%]
 
-    RW <= '0';
+-- Demonstrate reading from temp registers via A port
+[% loop for i from 1 below register-file:temp-registers do
+[@    wait until falling_edge(CLK);
+      TA <= "[%=~ "~4,'0b" i %]";
+@]%]
+
+      wait until rising_edge(CLK); -- Allow last temp register to change
+
     [% common:end-test %]
 end process;
 end Behavioural;

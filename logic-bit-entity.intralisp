@@ -1,0 +1,35 @@
+[%! "logic-bit.intralisp" %]
+[%! "logic-bit.intralisp" %]
+[%! "mux.intralisp" %]
+[% in-package :logic-bit %]
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture [%~ name %]_impl of [%~ name %] is
+    [% let ((mux:data-lines 4) (mux:select-lines 2) (mux:size 1))[@
+    component [%~ mux:name %] is [% mux:ports %]
+    end component;@]%]
+
+    signal conjunction : std_logic;
+    signal disjunction : std_logic;
+    signal exclusive_or : std_logic;
+    signal inversion : std_logic;
+begin
+   conjunction <= A and B;
+   disjunction <= A or B;
+   exclusive_or <= A xor B;
+   inversion <= not A;
+   
+[% let ((mux:data-lines 4) (mux:select-lines 1) (mux:size 1))
+[@   Mux4: [%~ mux:name %] [% mux:ports :uut :subs '(("D0" . "conjunction")
+                                                     ("D1" . "disjunction")
+                                                     ("D2" . "exclusive_or")
+                                                     ("D3" . "inversion")
+                                                     ("Q" . "G")
+                                                     ("sel" . "S")) %]@]%]
+end [%~ name %]_impl;
+@]%]

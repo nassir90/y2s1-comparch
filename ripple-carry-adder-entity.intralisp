@@ -1,0 +1,29 @@
+[%! "ripple-carry-adder.intralisp" %]
+[%! "full-adder.intralisp" %]
+[% in-package :ripple-carry-adder %]  
+[% defun entity () [@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+architecture Behavioural of [%~ name %] is
+  component [%~ full-adder:name %] is [% full-adder:ports %]
+  end component;
+
+  [% loop for i from 1 to size do [@
+  signal C_[%=i%] : std_logic;@]%]
+begin
+[% dotimes (i size)
+ [@full_adder_[%=i%]: [%~ full-adder:name %] [% full-adder:ports :uut
+                       :subs `(("A" . ,[@^A([%=i%])@])
+                               ("B" . ,[@^B([%=i%])@])
+                               ("C_IN" . ,(if (= i 0) "C_IN" [@^C_[%=i%]@]))
+                               ("C_OUT" . ,[@^C_[%~1+ i%]@])
+                               ("SUM" . ,[@^SUM([%=i%])@])) %]
+  
+  @]%]
+  C_OUT <= C_[%= size %];
+  V_OUT <= C_[%~ 1- size %] xor C_[%= size %] after 5 ns;
+
+end Behavioural;@]%]

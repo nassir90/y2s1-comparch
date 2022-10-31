@@ -1,4 +1,4 @@
-[%! "test-register-file-ports.intralisp" %]
+[%! "test-register-file.intralisp" %]
 [% in-package :test-register-file %]
 [% defun tb ()
 [@

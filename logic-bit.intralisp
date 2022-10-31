@@ -1,0 +1,12 @@
+[%! "common.intralisp" %]
+[% defpackage :logic-bit
+   (:use :cl)
+   (:export :ports
+            :name :entity :tb) %]
+[% in-package :logic-bit %]
+[% defun name () "RF_LogicBitslice_21364466" %]
+[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
+(common:port-header)
+[@[% dolist (port '("A" "B")) (fresh-line) [@    @] (common:port port) %]
+    [% common:port "S" :size 2 %]
+    [% common:port "G" :direction "out" :end ""%][% common:port-trailer %]@]%]

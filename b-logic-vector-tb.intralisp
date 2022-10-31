@@ -1,0 +1,18 @@
+[%! "b-logic-vector.intralisp" %]
+[% in-package :b-logic-vector %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :body
+ [@^
+ stim_proc: process begin
+     B <= [%~ common:wrap 21364466 :size 32 %];
+     S <= "00";
+     wait for 100 ns;
+     S <= "01";
+     wait for 100 ns;
+     S <= "10";
+     wait for 100 ns;
+     S <= "11";
+     wait for 100 ns;
+ end process;@])%]
+
+  [% tb %]

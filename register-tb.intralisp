@@ -1,4 +1,4 @@
-[%! "register-ports.intralisp" %]
+[%! "register.intralisp" %]
 [% in-package :register %]
 [% defun tb ()
 [@library ieee;

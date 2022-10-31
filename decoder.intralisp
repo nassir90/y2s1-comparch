@@ -10,4 +10,18 @@
 [% in-package :decoder %]
 [% defvar output-lines 32 %]
 [% defvar input-lines (truncate (log output-lines 2)) %]
-[% defun name () (format nil "Decoder_~dto~d_21364466" input-lines output-lines) %]
+[% defun name ()
+   (cond ((= output-lines 16) "RF_TempDestReg_Decoder_21364466")
+         ((= output-lines 32) "RF_DestReg_Decoder_21364466")
+         (t (format nil "Decoder_~dto~d_21364466" input-lines output-lines))) %]
+[% defun ports (&optional mode &key i o)
+(let ((common:mode mode))
+(common:port-header)
+(dotimes (j input-lines) [@
+    [% common:port (format nil "I~a" j)
+                    :map-to (if i (funcall i j) (format nil "I~d" j)) %]@])
+(dotimes (j output-lines) [@
+    [% common:port [@^O[%=j%]@]
+                          :direction "out"
+                          :map-to (if o (funcall o j) (format nil "O~d" j))
+                          :end (when (= j (1- output-lines)) ");")%]@]))%]

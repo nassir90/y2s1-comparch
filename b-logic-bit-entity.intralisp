@@ -1,0 +1,25 @@
+[%! "b-logic-bit.intralisp" %]
+[%! "mux.intralisp" %]
+[% in-package :b-logic-bit %]
+[% defun entity ()
+(let ((mux:size 1) (mux:select-lines 2) (mux:data-lines 4)) [@library ieee;
+use ieee.std_logic_1164.all;
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+architecture Behavioural of [%~ name %] is
+
+   component [%~ mux:name %] is [% mux:ports %]
+   end component;
+   signal not_B : std_logic;
+begin
+   not_B <= not B;
+
+   Mux2: [%~ mux:name %] [% mux:ports :uut
+                            :subs '(("Q" . "Y")
+                                    ("D0" . "B")
+                                    ("D1" . "not_B")
+                                    ("D2" . "'0'")
+                                    ("D3" . "'1'")
+                                    ("sel" . S)) %]
+end Behavioural;
+@])%]

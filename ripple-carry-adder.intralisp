@@ -1,0 +1,18 @@
+[%! "common.intralisp" %]
+[% defpackage :ripple-carry-adder
+ (:use :cl)
+ (:export :entity :tb :name :ports
+          :size ) %]
+[% in-package :ripple-carry-adder %]
+[% defvar size 32 %]
+[% defun name () "RippleCarryAdder32_21364466" %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" :size size %] 
+     [% common:port "B" :size size %] 
+     [% common:port "C_IN" %] 
+     [% common:port "SUM" :direction "out" :size size %]
+     [% common:port "V_OUT" :direction "out"  %]
+     [% common:port "C_OUT" :direction "out" :end "" %][% common:port-trailer %]@]%]

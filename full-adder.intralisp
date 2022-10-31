@@ -10,7 +10,7 @@
                 &aux (common:subs subs))
 [@[% common:port-header %] 
      [% common:port "A" %] 
-     [% common:port "A" %] 
+     [% common:port "B" %] 
      [% common:port "C_IN" %] 
-     [% common:port "SUM" %] 
-     [% common:port "C_OUT" :end "" %][% common:port-trailer %]@]%]
+     [% common:port "SUM" :direction "out" %] 
+     [% common:port "C_OUT" :direction "out" :end "" %][% common:port-trailer %]@]%]

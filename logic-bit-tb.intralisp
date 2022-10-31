@@ -1,0 +1,35 @@
+[%! "logic-bit.intralisp" %]
+[%! "logic-bit.intralisp" %]
+[%! "mux.intralisp" %]
+[% in-package :logic-bit %]
+[% defun s-to-function (s) (case s (0 "and") (1 "or") (2 "xor") (3 "not")) %]
+[% defun tb ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %]_TB is
+end [%~ name %]_TB;
+
+architecture Behavioral of [%~ name %]_TB is
+   component [%~ name %] is [% ports %]
+   end component;
+
+[% ports :signals %]
+begin
+   uut: [%~ name %] [% ports :uut %]
+   
+    stim_proc: process begin
+    [% dotimes (S 4)
+[@
+       -- Extensively test "[%~ s-to-function S %]" function of gate@]
+       (dotimes (A 2)
+       (dotimes (B 2) [@
+       A <= '[%=A%]';
+       B <= '[%=B%]';
+       S <= "[%=~ "~2,'0b" S%]";
+       wait for 20 ns;
+@]))%]
+    [% common:end-test :clocked nil %]
+    end process;
+end Behavioral;
+@]%]

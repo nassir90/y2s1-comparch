@@ -1,0 +1,15 @@
+[%! "common.intralisp" %]
+[% defpackage :logic-vector
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :logic-vector %]
+[% defvar size 32 %]
+[% defun name () [@^DP_[%=size%]Bit_LogicCircuit_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" :size size %] 
+     [% common:port "B" :size size %] 
+     [% common:port "S" :size 2 %]
+     [% common:port "G" :size 2 :direction "out" :end "" %][% common:port-trailer %]@]%]

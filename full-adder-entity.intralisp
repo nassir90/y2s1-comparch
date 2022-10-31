@@ -8,15 +8,15 @@ entity [%~ name %] is [% ports %]
 end [%~ name %];
 
 architecture [%~ name %]_impl of [%~ name %] is
+  signal sum_of_a_and_b : std_logic;
+  signal carry_of_a_and_b : std_logic;
+  signal carry_of_carry_in_and_a_and_b : std_logic;
 begin
 
     sum_of_a_and_b <= A xor B after 4 ns;
     carry_of_a_and_b <= A and B after 3 ns;
-    sum_of_carry_in_and_a_and_b <= sum_of_a_and_b xor C_IN after 4 ns;
     carry_of_carry_in_and_a_and_b <= sum_of_a_and_b and C_IN after 4 ns;
-    sum <= carry_of_carry_in_and_a_and_b;
+    sum <= sum_of_a_and_b xor C_IN after 4 ns;
     c_out <= carry_of_carry_in_and_a_and_b or carry_of_a_and_b after 2 ns;
 
 end [%~ name %]_impl;@]%]
-
-[% entity %]

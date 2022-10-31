@@ -1,0 +1,23 @@
+[%! "logic-vector.intralisp" %]
+[%! "logic-bit.intralisp" %]
+[% in-package :logic-vector %]
+[% defun entity() [@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture Behavioural of [%~ name %] is
+   component [%~ logic-bit:name %] is [%~ logic-bit:ports %]
+   end component;
+begin
+  [% dotimes (i size)[@
+  logic_circuit_bit_[%=i%]: [%~ logic-bit:name %] [% logic-bit:ports :uut
+                                               :subs `(("A" . ,[@^A([%=i%])@])
+                                                       ("B" . ,[@^B([%=i%])@])
+                                                       ("G" . ,[@^G([%=i%])@]))%]
+   @]%]
+end Behavioural;@]%]
+
+
+  [% entity %]

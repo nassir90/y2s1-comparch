@@ -1,0 +1,12 @@
+[%! "common.intralisp" %]
+[% defpackage :b-logic-bit
+   (:use :cl)
+   (:export :ports :entity :tb :name) %]
+[% in-package :b-logic-bit %]
+[% defun name () "DP_SingleBit_B_Logic_21364466" %]
+[% defun ports (&optional common:mode
+                &key subs &aux (common:subs subs)) [@
+[% common:port-header %]
+    [% common:port "S" :size 2 %] 
+    [% common:port "B" %] 
+    [% common:port "Y" :direction "out" :end ""%][% common:port-trailer %]@]%]

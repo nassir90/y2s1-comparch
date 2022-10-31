@@ -4,15 +4,17 @@
             :port :mode :subs
             :clock-period :define-clock :alternate-clock
             :end-test
-            :wrap) %]
+            :wrap :tb) %]
 [% in-package :common %]
 [% defvar clock-period "100 ns" %]
 [% defvar mode nil %]
 [% defvar subs nil %]
-[% defun wrap (constant &key size) (if size (wrap [@^[%=~ "~v,'0b" size constant%]@])
-                                       (if (= 1 (length constant))
-                                           [@^'[%=constant%]'@]
-                                           [@^"[%=constant%]"@])) %]
+[% defun wrap (constant &key size
+               &aux (constant (if (and (not size) (numberp constant)) (format nil "~d" constant) constant)))
+ (if size (wrap [@^[%=~ "~v,'0b" size constant%]@])
+    (if (= 1 (length constant))
+        [@^'[%=constant%]'@]
+        [@^"[%=constant%]"@])) %]
 [% defun port-header () (unless (eq mode :signals) [@port [%~ if mode "map (" "(" %] @])%]
 [% defun port-trailer () (when (not (eq mode :signals)) [@[%= ");" %]@]) %]
 [% defun sub (string)
@@ -37,3 +39,22 @@ wait until falling_edge(CLK);
 RUNNING <= '0';@]%]
 assert false report "Test complete" severity note;
 wait;@]%]
+[% defun tb (&key name ports header body
+             &aux (name (if (functionp name) (funcall name) name))) [@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%= name %]_TB is
+end [%= name %]_TB;
+
+architecture [%= name %]_impl of [%= name %]_TB is
+  
+   component [%= name %] is [% funcall ports %]
+   end component;
+[% funcall ports :signals %]
+[%~ or header ""  %]
+begin
+  uut: [%= name %] [% funcall ports :uut %]
+[%= body %]
+end [%= name %]_impl;
+@]%]

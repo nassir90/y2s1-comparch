@@ -1,5 +1,4 @@
 [%! "decoder.intralisp" %]
-[%! "decoder-ports.intralisp" %]
 [% in-package :decoder %]
 [% defun entity ()
 [@library ieee;

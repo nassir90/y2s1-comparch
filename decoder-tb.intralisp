@@ -1,5 +1,5 @@
 [%! "decoder.intralisp" %]
-[%! "decoder-ports.intralisp" %]
+[%! "decoder.intralisp" %]
 [% in-package :decoder %]
 [% defun tb ()
 [@library ieee;

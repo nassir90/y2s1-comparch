@@ -1,5 +1,5 @@
 [%! "mux.intralisp" %]
-[%! "mux-ports.intralisp" %]
+[%! "mux.intralisp" %]
 [%! "register.intralisp" %]
 [% in-package :mux %]
 [% defun entity ()

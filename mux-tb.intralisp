@@ -1,5 +1,5 @@
 [%! "mux.intralisp" %]
-[%! "mux-ports.intralisp" %]
+[%! "mux.intralisp" %]
 [%! "register.intralisp" %]
 [% in-package :mux %]
 [% defun tb (&key i-select-lines i-data-lines i-size)
@@ -29,8 +29,6 @@ uut: [%~ mux:name %] [% mux:ports :uut %]
 stim_proc: process
 begin
 [% dotimes (i mux:data-lines) [@
-    wait until falling_edge(CLK);
-    sel <= [%~ common:wrap (format nil "~v,'0b" mux:select-lines 0)%]; -- Set input line to zero
     wait until falling_edge(CLK);
     sel <= [%~ common:wrap (format nil "~v,'0b" mux:select-lines i)%]; -- Use the [%=~ "~:r" (1+ i) %] input
 

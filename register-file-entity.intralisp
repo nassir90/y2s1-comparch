@@ -1,7 +1,7 @@
-[%! "mux-ports.intralisp" %]
-[%! "decoder-ports.intralisp" %]
-[%! "register-ports.intralisp" %]
-[%! "register-file-ports.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "decoder.intralisp" %]
+[%! "register.intralisp" %]
+[%! "register-file.intralisp" %]
 [% in-package :register-file %]
 [% defun entity ()
 [@library ieee;
