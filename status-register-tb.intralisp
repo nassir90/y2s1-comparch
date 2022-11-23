@@ -1,0 +1,44 @@
+[%! "status-register.intralisp" %]
+[% in-package :status-register %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+  :header [@^[% common:define-clock%]@]
+  :body [@^
+  [% common:alternate-clock %]
+  stim_proc: process begin
+      --We enable loading of flags
+      wait until falling_edge(CLK);
+      LOAD_FLAGS <= '1';
+  
+  [% dolist (flag '("N" "Z" "V" "C"))
+    [@
+      --Show that the [%= flag %] register can be changed
+      wait until falling_edge(CLK);
+      [%= flag %] <= '0';
+      wait until falling_edge(CLK);
+      [%= flag  %] <= '1';
+      @]%]
+
+    -- Disable loading of flags and set all flags to zero
+    wait until falling_edge(CLK);
+    LOAD_FLAGS <= '0';
+    [% dolist (flag '("N" "Z" "V" "C")) [@
+    [%= flag  %] <= '0';@]%]
+
+    -- Reenable flag loading, basically reset
+    wait until falling_edge(CLK);
+    LOAD_FLAGS <= '1';
+
+    -- Set flags again
+    wait until falling_edge(CLK);
+    [% dolist (flag '("N" "Z" "V" "C")) [@
+    [%= flag  %] <= '1';@]%]
+
+    -- Showcase the reset functionality
+    wait until falling_edge(CLK);
+    [% dolist (flag '("N" "Z" "V" "C")) [@
+    RESET_[%= flag  %] <= '1';@]%]
+
+    [% common:end-test %]
+  end process;
+ @]) %]

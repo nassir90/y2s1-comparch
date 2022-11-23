@@ -1,0 +1,28 @@
+[%! "flip-flop.intralisp" %]
+[% in-package :flip-flop %]
+[% defun tb ()
+(common:tb :name #'name :ports #'ports
+ :header [@^[% common:define-clock %]@]
+ :body [@^
+ [% common:alternate-clock %]
+   stim_proc: process begin
+    wait until falling_edge(CLK);
+    EN <= '0';
+    RESET <= '1';
+
+    wait until falling_edge(CLK);
+    EN <= '1';
+    RESET <= '0';
+    D <= '0';
+
+    wait until falling_edge(CLK);
+    EN <= '1';
+    D <= '1';
+
+    wait until falling_edge(CLK);
+    EN <= '0';
+    D <= '0';
+
+   [% common:end-test %]
+   end process;
+ @])%]

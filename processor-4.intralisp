@@ -1,0 +1,32 @@
+[%! "common.intralisp" %]
+[% defpackage :processor-4
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :processor-4 %]
+[% defun name () [@^CPU_Processor_Test04_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %]
+     [% common:port "STATUS_VECTOR" :size 4 %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "RESET" %]
+     [% common:port "OPCODE" :size 17 %]
+     [% common:port "IL" :direction "out" %]
+     [% common:port "PI" :direction "out" %]
+     [% common:port "PL" :direction "out" %]
+     [% common:port "TD" :direction "out" :size 4 %]
+     [% common:port "TA" :direction "out" :size 4 %]
+     [% common:port "TB" :direction "out" :size 4 %]
+     [% common:port "MB" :direction "out" %]
+     [% common:port "FS" :direction "out" :size 5 %]
+     [% common:port "MD" :direction "out" %]
+     [% common:port "RW" :direction "out" %]
+     [% common:port "MM" :direction "out" %]
+     [% common:port "MW" :direction "out" %]
+     [% common:port "RV" :direction "out" %]
+     [% common:port "RC" :direction "out" %]
+     [% common:port "RN" :direction "out" %]
+     [% common:port "RZ" :direction "out" %]
+     [% common:port "FL" :direction "out" :end ""%][% common:port-trailer %]@]%]
+

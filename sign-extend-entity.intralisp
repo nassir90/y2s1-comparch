@@ -1,0 +1,8 @@
+[%! "sign-extend.intralisp" %]
+[% in-package :sign-extend %]
+[% defun entity ()
+(common:entity #'name #'ports
+ :body [@^
+ EXTENDED(9 downto 0) <= EXTENDAND after 5 ns;
+ EXTENDED(31 downto 10) <= (others => EXTENDAND(9)) after 5 ns;
+ @])%]

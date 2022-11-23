@@ -11,8 +11,9 @@
 [% defvar size 32 %]
 [% defvar start-undefined t %]
 [% defun name () [@^RF_Register[%=size%]Bit_21364466@] %]
-[% defun ports (&optional mode &key en d q)
-(let ((common:mode mode))
+[% defun ports (&optional mode &key en d q subs)
+(let ((common:mode mode)
+      (common:subs subs))
 (common:port-header)
 [@
     [% common:port "EN" :map-to (or en "EN") %]

@@ -16,9 +16,9 @@ begin
 
    Mux2: [%~ mux:name %] [% mux:ports :uut
                             :subs '(("Q" . "Y")
-                                    ("D0" . "B")
-                                    ("D1" . "not_B")
-                                    ("D2" . "'0'")
+                                    ("D0" . "'0'")
+                                    ("D1" . "B")
+                                    ("D2" . "not_B")
                                     ("D3" . "'1'")
                                     ("sel" . S)) %]
 end Behavioural;

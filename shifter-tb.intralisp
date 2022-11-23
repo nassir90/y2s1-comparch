@@ -1,0 +1,55 @@
+[%! "shifter.intralisp" %]
+[% in-package :shifter %]
+[% defun tb ()
+(common:tb :name #'name :ports #'ports :body
+ [@^
+ 
+ stim_proc: process begin
+                      
+     -- Set b to my student number
+     B <= [%~ common:wrap 21364466 :size 32 %];
+
+     -- Perform transfer
+     S <= "00";
+     wait for 100 ns;
+
+     -- Shift right
+     S <= "01";
+     wait for 100 ns;
+
+     -- Shift left
+     S <= "10";
+     wait for 100 ns;
+
+     -- Set b to my 1
+     B <= [%~ common:wrap 1 :size 32 %];
+
+     -- Perform transfer
+     S <= "00";
+     wait for 100 ns;
+
+     -- Shift right (carry bit set)
+     S <= "01";
+     wait for 100 ns;
+
+     -- Shift left (carry bit unset)
+     S <= "10";
+     wait for 100 ns;
+
+     -- Set b to my 2^(n-1) where n=32
+     B <= [%~ common:wrap (expt 2 31) :size 32 %];
+
+     -- Perform transfer
+     S <= "00";
+     wait for 100 ns;
+
+     -- Shift right (carry bit unset)
+     S <= "01";
+     wait for 100 ns;
+
+     -- Shift left (carry bit set)
+     S <= "10";
+     wait for 100 ns;
+ [% common:end-test :clocked nil %]
+ end process;
+ @])%]

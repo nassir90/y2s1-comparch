@@ -1,0 +1,7 @@
+[%! "zero-fill.intralisp" %]
+[% in-package :zero-fill %]
+[% defun entity ()
+ (common:entity #'name #'ports
+ :body [@^
+ G <= "000000000000000000000000000"&B after 5 ns;
+ @]) %]

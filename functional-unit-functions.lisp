@@ -1,0 +1,17 @@
+;; Numbers are in the form FSSSC, where F represents
+;; whether shifter output or alu output is being used.
+(("01000" "F=A&B")
+ ("01010" "F=A|B")
+ ("00110" "F=A-1")
+ ("10100" "F=srB")
+ ("00101" "F=A+NOT(B)+1")
+ ("01110" "F=NOT(A)")
+ ("00100" "F=A+NOT(B)")
+ ("10000" "F=B")
+ ("00011" "F=A+B+1")
+ ("11000" "F=slB")
+ ("00010" "F=A+B")
+ ("00111" "F=A")
+ ("00000" "F=A")
+ ("00001" "F=A+1")
+ ("01100" "F=A^B"))

@@ -1,0 +1,43 @@
+[%! "memory.intralisp" %]
+[% in-package :memory %]
+[% defun tb ()
+(common:tb :name #'name :ports #'ports
+ :header [@^[%common:define-clock%]@]
+ :body
+ [@^
+  [%common:alternate-clock%]
+
+  stim_proc: process begin
+  RW_MEMORY <= '1';
+    
+[% dotimes ( i words )
+ [@
+  -- Initialise [%=~ "~:r" (1+ i) %] memory address as:
+  -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ i 66) %]
+  wait until falling_edge(CLK);
+  ADDRESS <= [%~ common:wrap i :size 32 %];
+  DATA_IN <= [%~ common:wrap (+ i 66) :size 32 %];
+ @]%]
+  [% loop for i from 6 below 38 do
+ [@
+  -- Overwrite [%=~ "~:r" (1+ i) %] memory address with
+  -- 420 + [%= i %] = 0x[%=~ "~8,'0x" (+ 420 i) %]
+  wait until falling_edge(CLK);
+  ADDRESS <= [%~ common:wrap i :size 32 %];
+  DATA_IN <= [%~ common:wrap (+ i 420) :size 32 %];
+ @]%]
+
+  wait until falling_edge(CLK);
+  RW_MEMORY <= '0';
+
+  [% loop for i from 6 below 38 do
+ [@
+  -- Attempt to overwrite [%=~ "~:r" (1+ i) %] memory address with
+  -- 4466 + [%= i %] = 0x[%=~ "~8,'0x" (+ 4466 i) %]. Alas, RW_MEMORY=0
+  wait until falling_edge(CLK);
+  ADDRESS <= [%~ common:wrap i :size 32 %];
+  DATA_IN <= [%~ common:wrap (+ i 4466) :size 32 %];
+ @]%]
+ [%common:end-test%]
+  end process;
+  @])%]

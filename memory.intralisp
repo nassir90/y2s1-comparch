@@ -1,0 +1,17 @@
+[%! "common.intralisp" %]
+[% defpackage :memory
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :memory %]
+[% defvar size 32 %]
+[% defvar words 128 %]
+[% defun name () [@^CPU_RAM_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "ADDRESS" :size size %] 
+     [% common:port "DATA_IN" :size size %] 
+     [% common:port "RW_MEMORY" %]
+     [% common:port "DATA_OUT" :size size :direction "out" :end "" %][% common:port-trailer %]@]%]

@@ -1,15 +1,23 @@
 [%! "ripple-carry-adder.intralisp" %]
 [%! "full-adder.intralisp" %]
+[% load "ripple.lisp" %]
 [% in-package :ripple-carry-adder %]  
 [% defun tb ()
- (let ((test-vectors '((21364466 44 1))))
+ (let ((test-vectors (eval (with-open-file (*standard-input* "ripple-vectors.lisp") (read)))))
  (common:tb :name #'name :ports #'ports :body [@^
   stim_proc: process begin
-       [% loop for (a b c-in) in test-vectors do [@
+       [% loop for (a b c-in ignored comment) in test-vectors do [@
+       -- Reset values to zero
+       A <= [%~ common:wrap 0 :size size %];
+       B <= [%~ common:wrap 0 :size size %];
+       C_IN <= [%~ common:wrap 0 %];
+       wait for 600 ns;
+
+       -- [%= comment %]
        A <= [%~ common:wrap a :size size %];
        B <= [%~ common:wrap b :size size %];
        C_IN <= [%~ common:wrap c-in %];
-       wait for 100 ns;
+       wait for 600 ns;
        @]%]
   [% common:end-test :clocked nil %]
   end process;@]))%]

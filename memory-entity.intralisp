@@ -1,0 +1,29 @@
+[%! "memory.intralisp" %]
+[% in-package :memory %]
+[% defun entity () [@library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+architecture Behavioral of [%~ name %] is
+  type ram_t is array (0 to [%~ 1- words %]) of std_logic_vector(31 downto 0);
+
+  -- Initialise ram in TB?
+  signal ram : ram_t;-- := (
+    [% dotimes (i words)
+    [@--X"[%=~ "~8,'0x" (+ 66 i) %]"[%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
+    @]%]--);
+begin
+  process (CLK)
+    begin
+if rising_edge(CLK) then
+  if RW_MEMORY='1' then
+    ram(to_integer(unsigned(ADDRESS(3 downto 0)))) <= DATA_IN after 2 ns;
+    end if;
+   end if; 
+ end process;
+
+ DATA_OUT <= ram(to_integer(unsigned(ADDRESS(3 downto 0)))) after 2 ns;
+end Behavioral;@]%]

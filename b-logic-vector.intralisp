@@ -9,6 +9,6 @@
                 &key subs
                 &aux (common:subs subs))
 [@[% common:port-header %] 
-     [% common:port "B" %] 
+     [% common:port "B" :size size %] 
      [% common:port "S" :size 2 %]
-     [% common:port "Y" :size 2 :direction "out" :end "" %][% common:port-trailer %]@]%]
+     [% common:port "Y" :size size :direction "out" :end "" %][% common:port-trailer %]@]%]

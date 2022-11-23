@@ -5,14 +5,15 @@
             :size
             :select-lines
             :name
-            :ports
+            :ports :config
             :entity
             :tb) %]
 [% in-package :mux %]
 [% defvar data-lines 32 %]
 [% defvar size 32 %]
 [% defvar select-lines (truncate (log data-lines 2)) %]
-[% defun name () (format nil "RF_Mux~d_~dBit_21364466" data-lines size) %]
+[% defvar name nil %]
+[% defun name () (concatenate 'string (or name (format nil "RF_Mux~d_~dBit" data-lines size)) "_21364466") %]
 [% defun ports (&optional common:mode
                 &key d q sel start end subs
                 &aux (common:subs subs))
@@ -26,3 +27,27 @@ sel is just a string"
 [@    [% common:port "Q" :direction "out" :map-to (or q "Q") :size size :map-to (or q "Q" ) %]
 @]
 [@    [% common:port "sel" :map-to (or sel "sel") :size select-lines :end "" %]);@]%]
+[% common:configs
+ '(("dp-cflag" . ((name "DP_CFlagMux2_1Bit")
+                       (size 1)
+                       (data-lines 2)
+                       (select-lines 1)))
+   ("shifter-cflag" . ((name "DP_ShifterCFlagMux2_1Bit")
+                       (size 1)
+                       (data-lines 2)
+                       (select-lines 1)))
+   ("cpu-2-32" . ((name "CPU_Mux2_32Bit")
+                  (size 32)
+                  (data-lines 2)
+                  (select-lines 1)))
+   ("s-mux" . ((size 1)
+               (data-lines 8)
+               (select-lines 3)))
+   ("cpu-2-17" . ((name "CPU_Mux2_17Bit_21364466")
+                (size 17)
+                (data-lines 2)
+                (select-lines 1)))
+   ("dp-3-1" . ((name "DP_Mux3_1Bit")
+                (size 1)
+                (data-lines 3)
+                (select-lines 2)))) %]

@@ -4,7 +4,7 @@
    (:export :ports
             :name :entity :tb) %]
 [% in-package :logic-bit %]
-[% defun name () "RF_LogicBitslice_21364466" %]
+[% defun name () "DP_SingleBit_LogicCircuit_21364466" %]
 [% defun ports (&optional common:mode &key subs &aux (common:subs subs))
 (common:port-header)
 [@[% dolist (port '("A" "B")) (fresh-line) [@    @] (common:port port) %]

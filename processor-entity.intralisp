@@ -1,0 +1,132 @@
+[%! "processor.intralisp" %]
+[%! "datapath.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "zero-fill.intralisp" %]
+[%! "memory.intralisp" %]
+[%! "status-register.intralisp" %]
+[%! "s-mux.intralisp" %]
+[%! "car.intralisp" %]
+[%! "pc.intralisp" %]
+[%! "sign-extend.intralisp" %]
+[%! "ir.intralisp" %]
+[%! "control-memory.intralisp" %]
+[% in-package :processor %]
+[% defun entity ()
+ (common:entity #'name #'ports
+  :header [@^
+[% mux:config "cpu-2-32" (common:component #'mux:name #'mux:ports) %]
+[% mux:config "cpu-2-17" (common:component #'mux:name #'mux:ports) %]
+[% common:component #'zero-fill:name #'zero-fill:ports %]
+[% common:component #'datapath:name #'datapath:ports %]
+[% common:component #'memory:name #'memory:ports %]
+[% common:component #'status-register:name #'status-register:ports %]
+[% common:component #'s-mux:name #'s-mux:ports %]
+[% common:component #'car:name #'car:ports %]
+[% common:component #'pc:name #'pc:ports %]
+[% common:component #'sign-extend:name #'sign-extend:ports %]
+[% common:component #'ir:name #'ir:ports %]
+[% common:component #'control-memory:name #'control-memory:ports %]
+
+
+
+ signal ram_out : std_logic_vector(31 downto 0);
+ signal mux_m_out : std_logic_vector(31 downto 0);
+ signal datapath_add : std_logic_vector(31 downto 0);
+ signal datapath_general_out : std_logic_vector(31 downto 0);
+ signal N : std_logic;
+ signal Z : std_logic;
+ signal V : std_logic;
+ signal C : std_logic;
+
+ -- Were in test 2 but not in test 3
+ signal SA : std_logic_vector(4 downto 0);
+ signal SB : std_logic_vector(4 downto 0);
+ signal DR : std_logic_vector(4 downto 0);
+ signal OPCODE : std_logic_vector(16 downto 0);
+ signal sign_extend_output : std_logic_vector(31 downto 0);
+ signal pc_output :  std_logic_vector(31 downto 0);
+ signal sa_and_sb : std_logic_vector(9 downto 0);
+ signal zero_fill_output : std_logic_vector(31 downto 0);
+
+   signal mux_c_out : std_logic_vector(16 downto 0);
+   signal car_out : std_logic_vector(16 downto 0);
+   signal mux_s_out : std_logic;
+   signal STATUS_VECTOR : std_logic_vector(3 downto 0);
+
+ [% control-memory:ports :signals %]
+         @]
+
+  :body [@^
+
+
+
+sa_and_sb <= SA & SB;
+
+
+       SignExt: [%~ sign-extend:name %] [% sign-extend:ports :uut
+                                         :subs '(("EXTENDAND" . "sa_and_sb")
+                                                 ("EXTENDED" . "sign_extend_output")) %]
+
+ZeroFill: [%~ zero-fill:name %] [% zero-fill:ports :uut
+                                 :subs '(("B" . "SB")
+                                         ("G" . "zero_fill_output")) %]
+
+InstReg: [%~ ir:name %] [% ir:ports :uut
+                          :subs '(("INSTRUCTION_IN" . "ram_out")) %]
+
+  PC: [%~ pc:name %] [% pc:ports :uut
+                      :subs '(("Displacement" . "sign_extend_output")
+                              ("INST_ADD" . "pc_output")) %]
+
+       
+ 
+    Datapath: [%~ datapath:name %] [% datapath:ports :uut
+                                    :subs '(("ADD" . "datapath_add")
+                                            ("DATA_IN" . "ram_out")
+                                            ("DATA_OUT" . "datapath_general_out")
+                                            ("IR_IN" . "zero_fill_output")) %]
+
+       [% mux:config "cpu-2-32" [@
+   MuxM: [%~ mux:name %] [% mux:ports :uut
+                                    :subs '(("D0" . "datapath_add")
+                                            ("D1" . "pc_output")
+                                            ("sel" . "MM")
+                                            ("Q" . "mux_m_out")) %]@]%]
+
+       RAM: [%~ memory:name %] [% memory:ports :uut
+                                    :subs '(("ADDRESS" . "mux_m_out")
+                                            ("DATA_IN" . "datapath_general_out")
+                                            ("RW_MEMORY" . "MW")
+                                            ("DATA_OUT" . "ram_out")) %]
+
+  StatusReg: [%~ status-register:name %] [% status-register:ports :uut
+                                          :subs '(("RESET_N" . "RN")
+                                                  ("RESET_Z" . "RZ")
+                                                  ("RESET_V" . "RV")
+                                                  ("RESET_C" . "RC")
+                                                  ("LOAD_FLAGS" . "FL")) %]
+
+       [% mux:config "cpu-2-17"
+       [@MuxC: [%~ mux:name %] [% mux:ports :uut
+                            :subs '(("D0" . "NA")
+                                    ("D1" . "OPCODE")
+                                    ("Q" . "ADDRESS")
+                                    ("sel" . "MC")) %]@]%]
+
+
+          CAR: [%~ car:name %] [% car:ports :uut
+                                :subs '(("AUX_IN" . "mux_c_out")
+                                        ("sel" . "mux_s_out")
+                                        ("ADDR_OUT" . "car_out")) %]
+
+
+      MuxS: [%~ s-mux:name %] [% s-mux:ports :uut
+                               :subs '(("N" . "STATUS_VECTOR(0)")
+                                       ("Z" . "STATUS_VECTOR(1)")
+                                       ("V" . "STATUS_VECTOR(2)")
+                                       ("C" . "STATUS_VECTOR(3)")
+                                       ("sel" . "MS")
+                                       ("Q" . "mux_s_out")) %]
+
+
+          ControlROM: [%~ control-memory:name %] [% control-memory:ports :uut %]@])%]

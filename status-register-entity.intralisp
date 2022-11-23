@@ -1,0 +1,27 @@
+[%! "status-register.intralisp" %]
+[%! "flip-flop.intralisp" %]
+[% in-package :status-register %]
+[% defun entity ()
+(common:entity #'name #'ports
+ :header [@^
+ component [%~ flip-flop:name %] is [% flip-flop:ports %]
+ end component;
+
+ signal N_internal : std_logic;
+ signal Z_internal : std_logic;
+ signal V_internal : std_logic;
+ signal C_internal : std_logic;
+ @]
+ :body [@^
+ 
+ [% do ((flags '("N" "Z" "V" "C") (cdr flags))
+         (index 0 (1+ index)))
+        ((not flags))
+  (let ((flag (car flags)))[@
+   [%=flag%]Flag: [%~ flip-flop:name %] [% flip-flop:ports :uut
+                     :subs `(("D" . ,flag)
+                             ("EN" . "LOAD_FLAGS")
+                             ("RESET" . ,(concatenate 'string "RESET_" flag))
+                             ("Q" . ,[@^STATUS_VECTOR([%=index%])@])) %]
+    @])%]
+ @])%]

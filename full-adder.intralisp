@@ -4,7 +4,7 @@
    (:export :ports :entity :tb
             :name) %]
 [% in-package :full-adder %]
-[% defun name () "RF_FullAdder_21364466" %]
+[% defun name () "DP_FullAdder_21364466" %]
 [% defun ports (&optional common:mode
                 &key subs
                 &aux (common:subs subs))

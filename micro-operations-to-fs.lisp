@@ -1,0 +1,17 @@
+;; Numbers are in the form FSSSC, where F represents
+;; whether shifter output or alu output is being used.
+((mov-a "\"00000\"")
+ (inc "\"00001\"")
+ (add "\"00010\"")
+ (add-1 "\"00011\"")
+ (sub-1 "\"00100\"")
+ (sub "\"00101\"")
+ (dec "\"00110\"")
+ (dec "\"00111\"")
+ (and "\"01000\"")
+ (or "\"01010\"")
+ (xor "\"01100\"")
+ (inv "\"01110\"")
+ (mov-b "\"10000\"")
+ (lsr "\"10100\"")
+ (lsl "\"11000\""))

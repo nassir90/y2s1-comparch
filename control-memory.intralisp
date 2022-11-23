@@ -1,0 +1,33 @@
+[%! "common.intralisp" %]
+[% defpackage :control-memory
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :control-memory %]
+[% defvar size 32 %]
+[% defvar words 128 %]
+[% defun name () [@^CPU_ControlMemory_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %]
+     [% common:port "ADDRESS" :size common:control-memory-size %]
+     [% common:port "NA" :direction "out" :size common:control-memory-size %]
+     [% common:port "MS" :direction "out" :size 3 %] 
+     [% common:port "MC" :direction "out" %]
+     [% common:port "IL" :direction "out" %]
+     [% common:port "PI" :direction "out" %]
+     [% common:port "PL" :direction "out" %]
+     [% common:port "TD" :direction "out" :size 4 %]
+     [% common:port "TA" :direction "out" :size 4 %]
+     [% common:port "TB" :direction "out" :size 4 %]
+     [% common:port "MB" :direction "out" %]
+     [% common:port "FS" :direction "out" :size 5 %]
+     [% common:port "MD" :direction "out" %]
+     [% common:port "RW" :direction "out" %]
+     [% common:port "MM" :direction "out" %]
+     [% common:port "MW" :direction "out" %]
+     [% common:port "RV" :direction "out" %]
+     [% common:port "RC" :direction "out" %]
+     [% common:port "RN" :direction "out" %]
+     [% common:port "RZ" :direction "out" %]
+     [% common:port "FL" :direction "out" :end "" %][% common:port-trailer %]@]%]

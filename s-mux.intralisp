@@ -1,0 +1,14 @@
+[%! "common.intralisp" %]
+[% defpackage :s-mux
+ (:use :cl)
+ (:export :entity :tb :name :ports) %]
+[% in-package :s-mux %]
+[% defun name () "CPU_SMux_21364466" %]
+[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
+[@[% common:port-header %]
+    [% common:port "N" %]
+    [% common:port "Z" %]
+    [% common:port "V" %]
+    [% common:port "C" %]
+    [% common:port "sel" :size 3 %]
+    [% common:port "Q" :direction "out" :end "" %][%common:port-trailer%]@]%]

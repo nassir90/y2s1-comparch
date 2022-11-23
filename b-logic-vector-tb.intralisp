@@ -13,6 +13,6 @@
      wait for 100 ns;
      S <= "11";
      wait for 100 ns;
- end process;@])%]
 
-  [% tb %]
+     [% common:end-test :clocked nil %]
+ end process;@])%]

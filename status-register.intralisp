@@ -1,0 +1,19 @@
+[%! "common.intralisp" %]
+[% defpackage :status-register
+ (:use :cl)
+ (:export :name :tb :entity :ports) %]
+[% in-package :status-register %]
+[% defun name () [@^CPU_StatusRegister_213644666@] %]
+[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
+[@[% common:port-header %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "N" %]
+     [% common:port "RESET_N" %]
+     [% common:port "Z" %]
+     [% common:port "RESET_Z" %]
+     [% common:port "V" %]
+     [% common:port "RESET_V" %]
+     [% common:port "C" %]
+     [% common:port "RESET_C" %]
+     [% common:port "LOAD_FLAGS" %]
+     [% common:port "STATUS_VECTOR" :size 4 :direction "out" :end "" %][% common:port-trailer %]@]%]

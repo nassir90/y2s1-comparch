@@ -5,7 +5,7 @@
           :size ) %]
 [% in-package :ripple-carry-adder %]
 [% defvar size 32 %]
-[% defun name () "RippleCarryAdder32_21364466" %]
+[% defun name () "DP_RippleCarryAdder32_21364466" %]
 [% defun ports (&optional common:mode
                 &key subs
                 &aux (common:subs subs))

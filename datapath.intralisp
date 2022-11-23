@@ -1,0 +1,32 @@
+[%! "common.intralisp" %]
+[%! "register-file.intralisp" %]
+[% defpackage :datapath
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :datapath %]
+[% defun name () "DP_Datapath_21364466" %]
+[% defvar size 32 %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "IR_IN" :size size %]
+     [% common:port "MB" %]
+     [% common:port "DATA_IN" :size size %]
+     [% common:port "MD" %]
+     [% common:port "FS" :size 5 %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "DR" :size 5 %]
+     [% common:port "SA" :size 5 %]
+     [% common:port "SB" :size 5 %]
+     [% common:port "TD" :size 4 %]
+     [% common:port "TA" :size 4 %]
+     [% common:port "TB" :size 4 %]
+     [% common:port "RW" %]
+     [% common:port "DATA_OUT" :size size %]
+     [% common:port "ADD" :direction "out" :size size %]
+     [% common:port "N" :direction "out" %]
+     [% common:port "Z" :direction "out" %]
+     [% common:port "V" :direction "out" %]
+     [% common:port "C" :direction "out" :end "" %][% common:port-trailer %]@]%]

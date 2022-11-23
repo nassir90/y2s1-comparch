@@ -1,0 +1,20 @@
+[%! "common.intralisp" %]
+[% defpackage :functional-unit
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :functional-unit %]
+[% defun name () "DP_FunctionalUnit_21364466" %]
+[% defvar size 32 %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" :size size %]
+     [% common:port "B" :size size %] 
+     [% common:port "FS" :size 5 %]
+     [% common:port "G" :size size :direction "out" %]
+     [% common:port "N" :direction "out" %]
+     [% common:port "V" :direction "out" %]
+     [% common:port "Z" :direction "out" %]
+     [% common:port "C" :direction "out" :end "" %][% common:port-trailer %]@]%]

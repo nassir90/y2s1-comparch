@@ -1,0 +1,29 @@
+[%! "car.intralisp" %]
+[% in-package :car %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+ :header [@^
+ [% common:define-clock %]@]
+ :body [@^
+ [% common:alternate-clock %]
+ stim_proc: process begin
+
+ -- Reset to my student number
+ wait until falling_edge(CLK);
+ RESET <= '1';
+ sel <= '1';
+
+ -- Increment CAR
+ wait until falling_edge(CLK);
+ RESET <= '0';
+ sel <= '0';
+ -- Increment CAR
+ wait until falling_edge(CLK);
+ -- Increment CAR
+ wait until falling_edge(CLK);
+
+ wait until falling_edge(CLK);
+ sel <= '1';
+ AUX_IN <= [%~ common:wrap 66 :size 17 %];
+[% common:end-test %]
+ end process;@]) %]

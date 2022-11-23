@@ -1,0 +1,51 @@
+[%! "car.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "ripple-carry-adder.intralisp" %]
+[%! "register.intralisp" %]
+[% in-package :car %]
+  
+[% defun entity()
+ (mux:config "cpu-2-17"
+  (common:entity #'name #'ports
+:header [@^
+component [%~ ripple-carry-adder:name %] is [% ripple-carry-adder:ports %]
+ end component;
+component [%~ mux:name %] is [% mux:ports %]
+ end component;
+
+ signal CURRENT_ADDRESS : std_logic_vector([%~ 1- common:control-memory-size %] downto 0);
+signal adder_out : std_logic_vector(31 downto 0);
+signal reset_mux_out : std_logic_vector([%~ 1- common:control-memory-size %] downto 0);
+signal next_value_mux_out : std_logic_vector([%~ 1- common:control-memory-size %] downto 0);
+                                            signal who_cares : std_logic;
+ signal extended_address : std_logic_vector(31 downto 0);
+                                            @]
+:body [@^
+extended_address <= "000000000000000" & CURRENT_ADDRESS;
+Adder: [%~ ripple-carry-adder:name %] [% ripple-carry-adder:ports :uut
+                                       :subs `(("A" . "extended_address")
+                                               ("B" . ,(common:wrap 1 :size 32))
+                                               ("SUM" . "adder_out")
+                                               ("V_OUT" . "who_cares")
+                                               ("C_OUT" . "who_cares")
+                                               ("C_IN" . "'0'")) %]
+       
+NextValueMux: [%~ mux:name %] [% mux:ports :uut
+                               :subs '(("D0" . "adder_out(16 downto 0)")
+                                       ("D1" . "AUX_IN")
+                                       ("Q" . "next_value_mux_out")) %]
+       
+ResetMux: [%~ mux:name %] [% mux:ports :uut
+                           :subs `(("D0" . "next_value_mux_out")
+                                   ("D1" . ,(common:wrap 6 :size 17))
+                                   ("Q" . reset_mux_out)
+                                   ("sel" . "RESET")) %]
+
+ process (CLK, RESET) begin
+ if rising_edge(CLK) then
+   CURRENT_ADDRESS <= reset_mux_out;
+ end if;
+ end process;
+
+ ADDR_OUT <= CURRENT_ADDRESS;
+@])) %]

@@ -12,4 +12,4 @@
      [% common:port "A" :size size %] 
      [% common:port "B" :size size %] 
      [% common:port "S" :size 2 %]
-     [% common:port "G" :size 2 :direction "out" :end "" %][% common:port-trailer %]@]%]
+     [% common:port "G" :size size :direction "out" :end "" %][% common:port-trailer %]@]%]

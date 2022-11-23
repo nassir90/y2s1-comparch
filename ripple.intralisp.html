@@ -1,0 +1,17 @@
+[% load "ripple.lisp" %]
+
+[% defun dump (a b c &key (header ""))
+ (let* ((ripple (ripple-unzip (ripple-add a b c)))
+       (sum (parse-integer (apply #'concatenate (append '(string) (mapcar #'(lambda (a) (make-string 1 :initial-element (code-char (+ a #x30)))) (nth 3 ripple)))) :radix 2)))
+ [@
+<h2>[%=header%]</h2>
+<table>
+  <tr><td></td><td>V<sub>out</sub></td></tr>
+  <tr><td></td><td>[%~ logxor (nth 1 (nth 0 ripple)) (nth 0 (nth 0 ripple))%]</td></tr>
+  <tr><td></td><td>C<sub>out</sub></td>[% loop for i from 31 downto 1 do [@<td><sub>[%=i%]</sub></td>@]%]<td>C<sub>in</sub></td></tr>
+  <tr><td>C</td>[% dolist (elt (nth 0 ripple)) [@<td>[%=elt%]</td>@]%]</tr>
+  <tr><td>A</td>[% dolist (elt (nth 1 ripple)) [@<td>[%=elt%]</td>@]%]<td>(unsigned decimal: [%=a%], signed decimal: [%~ srep a%])</td></tr>
+  <tr><td>B</td>[% dolist (elt (nth 2 ripple)) [@<td>[%=elt%]</td>@]%]<td>(unsigned decimal: [%=b%], signed decimal: [%~ srep b%])</tr></td>
+  <tr><td>Sum</td>[% dolist (elt (nth 3 ripple)) [@<td>[%=elt%]</td>@]%]<td>(unsigned decimal: [%=sum%], signed decimal: [%~ srep sum%])</td></tr>
+</table>@])%]
+[% dolist (args (eval (with-open-file (*standard-input* "ripple-vectors.lisp") (read)))) (apply #'dump args) %]

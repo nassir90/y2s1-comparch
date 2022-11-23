@@ -1,0 +1,33 @@
+[%! "s-mux.intralisp" %]
+[% in-package :s-mux %]
+[% defun test-flag (flag index &key (invert nil) (set t))
+
+;; in the first clock cycle, Q will have the value the selected flag had already
+;; in the second clock cycle, the underlying flag will be set to 1
+;; in the third clock cycle, the underlying flag will be set to 0
+ [@
+  -- Let MS point to the[% when invert [@ (not)@]%] [%= flag %] flag[% when(and (not invert) set)[@, it is undefined @] %]
+  wait for 100 ns;
+  sel <= [%~ common:wrap index :size 3 %];[% when set [@
+  -- Let us change the[% when invert [@ (not)@]%] [%= flag %] flag
+  wait for 100 ns;
+  [%= flag %] <= '1';
+  wait for 100 ns;
+  [%= flag %] <= '0';@]%]
+ @]%]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+ :body [@^
+ stim_proc: process begin
+ [% test-flag "'never'" 0 :set nil %]
+ [% test-flag "'always'" 1 :set nil %]
+ [% do ((flags '("C" "V" "Z" "N") (cdr flags))
+        (i 2 (1+ i)))
+       ((not flags))
+  (test-flag (car flags) i) %]
+ [% test-flag "C" 6 :invert t %]
+ [% test-flag "Z" 7 :invert t %]
+   wait for 100 ns;
+ [% common:end-test :clocked nil %]
+ end process;
+ @])%]

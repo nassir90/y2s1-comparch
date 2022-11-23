@@ -1,0 +1,22 @@
+[%! "zero-detector.intralisp" %]
+[% in-package :zero-detector %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :body
+  [@^
+
+ stim_proc: process begin
+  -- Set to my student number
+  A <= [%~ common:wrap 21364466 :size 32 %];
+  wait for 100 ns;
+
+  -- Set to some other nonzero value
+  A <= [%~ common:wrap 21364467 :size 32 %];
+  wait for 100 ns;
+
+  -- Set to zero
+  A <= [%~ common:wrap 0 :size 32 %];
+  wait for 100 ns;
+[% common:end-test :clocked nil %]
+
+  end process;
+   @]) %]

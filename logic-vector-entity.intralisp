@@ -8,7 +8,7 @@ entity [%~ name %] is [% ports %]
 end [%~ name %];
 
 architecture Behavioural of [%~ name %] is
-   component [%~ logic-bit:name %] is [%~ logic-bit:ports %]
+   component [%~ logic-bit:name %] is [% logic-bit:ports %]
    end component;
 begin
   [% dotimes (i size)[@
@@ -18,6 +18,3 @@ begin
                                                        ("G" . ,[@^G([%=i%])@]))%]
    @]%]
 end Behavioural;@]%]
-
-
-  [% entity %]

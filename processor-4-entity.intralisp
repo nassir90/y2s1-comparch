@@ -1,0 +1,52 @@
+[%! "processor-4.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "car.intralisp" %]
+[%! "control-memory.intralisp" %]
+[%! "s-mux.intralisp" %]
+[% in-package :processor-4 %]
+[% defun entity ()
+ (mux:config "cpu-2-17"
+  (common:entity #'name #'ports
+   :header [@^
+   [% common:component #'mux:name #'mux:ports %]
+   [% common:component #'s-mux:name #'s-mux:ports %]
+   [% common:component #'control-memory:name #'control-memory:ports %]
+   [% common:component #'car:name #'car:ports %]
+
+   signal NA : std_logic_vector(16 downto 0);
+   signal mux_c_out : std_logic_vector(16 downto 0);
+   signal car_out : std_logic_vector(16 downto 0);
+   signal mux_s_out : std_logic;
+   signal MC : std_logic;
+   signal MS : std_logic_vector(2 downto 0);
+            @]
+   :body [@^
+   MuxC: [%~ mux:name %] [% mux:ports :uut
+                            :subs '(("D0" . "NA")
+                                    ("D1" . "OPCODE")
+                                    ("Q" . "mux_c_out")
+                                    ("sel" . "MC")) %]
+
+
+          CAR: [%~ car:name %] [% car:ports :uut
+                                :subs '(("AUX_IN" . "mux_c_out")
+                                        ("sel" . "mux_s_out")
+                                        ("ADDR_OUT" . "car_out")) %]
+
+
+      MuxS: [%~ s-mux:name %] [% s-mux:ports :uut
+                               :subs '(("N" . "STATUS_VECTOR(0)")
+                                       ("Z" . "STATUS_VECTOR(1)")
+                                       ("V" . "STATUS_VECTOR(2)")
+                                       ("C" . "STATUS_VECTOR(3)")
+                                       ("sel" . "MS")
+                                       ("Q" . "mux_s_out")) %]
+
+
+          ControlROM: [%~ control-memory:name %] [% control-memory:ports :uut
+                                                  :subs '(("ADDRESS" . "car_out")) %]
+
+          @]))%]
+                                                  
+
+          

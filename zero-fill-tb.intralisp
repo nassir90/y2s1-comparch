@@ -1,0 +1,11 @@
+[%! "zero-fill.intralisp" %]
+[% in-package :zero-fill %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+ :body [@^
+ stim_proc: process begin
+    B <= [%~ common:wrap 10 :size 5 %];
+    wait for 100 ns;
+    [% common:end-test :clocked nil %]
+ end process;
+ @])%]

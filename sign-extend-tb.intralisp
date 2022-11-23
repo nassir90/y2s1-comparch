@@ -1,0 +1,18 @@
+[%! "sign-extend.intralisp" %]
+[% in-package :sign-extend %]
+[% load "ripple.lisp" %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+  :body [@^
+
+  stim_proc: process begin
+    EXTENDAND <= [%~ common:wrap (neg 30 10) :size 10 %];
+    wait for 100 ns;
+
+    EXTENDAND <= [%~ common:wrap 30 :size 10 %];
+    wait for 100 ns;
+
+    [% common:end-test :clocked nil %]
+
+   end process;
+  @])%]

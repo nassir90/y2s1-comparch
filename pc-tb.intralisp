@@ -1,0 +1,41 @@
+[%! "pc.intralisp" %]
+[% in-package :pc %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+ :header [@^ [% common:define-clock %] @]
+ :body [@^
+ [% common:alternate-clock %]
+ stim_proc: process begin
+   
+    -- Test reset
+    wait until falling_edge(CLK);
+    PL <= '1';
+    PI <= '1';
+    RESET <= '1';
+
+    -- Test setting to my student ID
+    wait until falling_edge(CLK);
+    PI <= '0';
+    RESET <= '0';
+    DISPLACEMENT <= [%~ common:wrap 6 :size 32 %];
+
+    -- Test incrementing
+    wait until falling_edge(CLK); -- Disable reset and Add 1
+    PI <= '1';
+    wait until falling_edge(CLK); -- Add 1
+    wait until falling_edge(CLK); -- Add 1
+    wait until falling_edge(CLK); -- Add 1
+    
+    -- Test displacement
+    wait until falling_edge(CLK);
+    PI <= '0';
+    DISPLACEMENT <= [%~ common:wrap 66 :size 32 %];
+    -- Value should be 34 before being reset.
+    
+    -- Test reset
+    wait until falling_edge(CLK);
+    RESET <= '1';
+    
+ [% common:end-test %]
+ end process;
+ @])%]

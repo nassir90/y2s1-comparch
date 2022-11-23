@@ -1,0 +1,19 @@
+[%! "ir.intralisp" %]
+[% in-package :ir %]
+[% load "compiler.lisp" %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports
+ :header [@^
+ [% common:define-clock %]
+ @]
+ :body [@^
+ [% common:alternate-clock %]
+ stim_proc: process begin
+     INSTRUCTION_IN <= [%~ parse-instruction `(44 4 6 6) %];
+     wait until falling_edge(CLK);
+     IL <= '0';
+     wait until falling_edge(CLK);
+     IL <= '1';
+     [% common:end-test %]
+ end process;
+ @]) %]

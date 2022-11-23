@@ -1,0 +1,19 @@
+[%! "control-memory.intralisp" %]
+[% in-package :control-memory %]
+[% defun tb ()
+(common:tb :name #'name :ports #'ports
+ :header [@^[%common:define-clock%]@]
+ :body
+ [@^
+  [%common:alternate-clock%]
+
+  stim_proc: process begin
+  [% dotimes (i words) [@
+  -- Read from memory address [%=~ "~r" i %]
+  wait until falling_edge(CLK);
+  ADDRESS <= [%~ common:wrap i :size common:control-memory-size %];
+  @]
+  %]
+ [%common:end-test%]
+  end process;
+  @])%]

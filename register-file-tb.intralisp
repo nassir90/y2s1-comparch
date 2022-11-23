@@ -11,7 +11,7 @@ end [%= name %]_TB;
 architecture Behavioural of [%=name%]_TB is
 component [%=name%] is [%ports%]
 end component;
-[% ports :signals  %]
+[% ports :signals %]
 [% common:define-clock %]
 begin
 [% common:alternate-clock %]

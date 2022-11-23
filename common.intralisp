@@ -1,31 +1,37 @@
 [% defpackage :common
    (:use :cl)
    (:export :port-header :port-trailer
-            :port :mode :subs
+            :port :mode :subs :zero
             :clock-period :define-clock :alternate-clock
-            :end-test
-            :wrap :tb) %]
+            :end-test :component :entity
+            :wrap :tb :control-memory-size
+            :configs ) %]
 [% in-package :common %]
-[% defvar clock-period "100 ns" %]
+[% defvar clock-period "500 ns" %]
+[% defvar control-memory-size 17 %]
 [% defvar mode nil %]
 [% defvar subs nil %]
+[% defvar zero nil %]
 [% defun wrap (constant &key size
                &aux (constant (if (and (not size) (numberp constant)) (format nil "~d" constant) constant)))
  (if size (wrap [@^[%=~ "~v,'0b" size constant%]@])
     (if (= 1 (length constant))
         [@^'[%=constant%]'@]
         [@^"[%=constant%]"@])) %]
-[% defun port-header () (unless (eq mode :signals) [@port [%~ if mode "map (" "(" %] @])%]
-[% defun port-trailer () (when (not (eq mode :signals)) [@[%= ");" %]@]) %]
+[% defun port-header () (unless (member mode '(:signals :append)) [@port [%~ if mode "map (" "(" %] @])%]
+[% defun port-trailer () (when (not (member mode '(:signals :append))) [@[%= ");" %]@]) %]
 [% defun sub (string)
 (let ((sub (cdr (assoc string subs :test #'equal))))
      (when sub (if (functionp sub) (funcall sub string) sub)))%]
 [% defun port-type (size) (if (= size 1) [@^std_logic@] [@^std_logic_vector([%~ 1- (truncate size) %] downto 0)@]) %]
-[% defun port (name &key map-to (direction "in") end (size 1) init)
+[% defun port (name &key map-to (direction "in") end (size 1) (init nil))
  (case mode
   (:uut [@[%=name%] => [%~ or (sub name) map-to name %][%~ or end "," %]@])
-  (:signals [@signal [%~ or (sub name) name %] : [%~ port-type size %][% when init [@ := [%~ if (numberp init) (wrap (mod init (expt 2 size)) :size size) (wrap init) %]@]%];@])
-  (t [@[%=name%] : [%=direction%] [%~ port-type size %][%~ or end ";" %]@]))%]
+  (:signals [@signal [%~ or (sub name) name %] : [%~ port-type size %][% when (or init zero) [@ := [%~ cond
+                                                                                                 ((numberp init) (wrap (mod init (expt 2 size)) :size size))
+                                                                                                 (init (wrap init))
+                                                                                                 (zero (wrap 0 :size size))%]@]%];@])
+  (t [@[%=name%] : [%=direction%] [%~ port-type size %][%~ if (or (eq mode :append) (not end)) ";" end %]@]))%]
 [% defun define-clock ()
 [@    constant CLOCK_PERIOD : time := [%= clock-period %];
     signal CLK : std_logic := '0';
@@ -58,3 +64,22 @@ begin
 [%= body %]
 end [%= name %]_impl;
 @]%]
+[% defun component (name ports)
+[@component [%~ funcall name %] is [% funcall ports %]
+    end component;@]%]
+[% defmacro configs (bindings)
+ `(defmacro ,(intern "CONFIG") (config &rest body &aux (bindings ,bindings))
+    `(let ,(cdr (assoc config ,bindings :test #'equal)) ,@body)) %]
+[% defun entity (name ports &key prelude header body)
+[@library ieee;
+use ieee.std_logic_1164.all;
+[%~ or prelude "" %]
+
+entity [%~ funcall name %] is [% funcall ports %]
+end [%~ funcall name %];
+
+architecture Behavioral of [%~ funcall name %] is
+[%~ or header "" %]                               
+begin
+[%~ or body "" %]
+end Behavioral;@]%]

@@ -1,0 +1,77 @@
+[%! "functional-unit.intralisp" %]
+[%! "shifter.intralisp" %]  
+[%! "mux.intralisp" %]  
+[%! "zero-detector.intralisp" %]  
+[%! "alu.intralisp" %]  
+[% in-package :functional-unit %]
+
+[%defun entity()[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+[% mux:config "cpu-2-32"
+[@architecture Behavioural of [%~ name %] is
+   [% common:component  #'shifter:name #'shifter:ports %]
+   [% common:component  #'alu:name #'alu:ports %]
+   [% common:component  #'zero-detector:name #'zero-detector:ports %]
+   [% common:component #'mux:name #'mux:ports %]
+   [% mux:config "dp-cflag" (common:component #'mux:name #'mux:ports) %]
+
+   signal C_IN : std_logic;
+   signal S0 : std_logic;
+   signal S1 : std_logic;
+   signal S2 : std_logic;
+   signal S3 : std_logic;
+   signal F_internal : std_logic_vector (31 downto 0);
+   signal alu_output : std_logic_vector (31 downto 0);
+   signal shifter_output : std_logic_vector (31 downto 0);
+   signal alu_carry_output : std_logic;
+   signal shifter_carry_output : std_logic;
+   signal alu_select_lines : std_logic_vector (2 downto 0);
+   signal shifter_select_lines : std_logic_vector (1 downto 0);
+   signal function_select_line : std_logic;
+   signal Z_internal : std_logic;
+   
+begin
+  C_IN <= FS(0);
+  S0 <= FS(1);
+  S1 <= FS(2);
+  S2 <= FS(3);
+  S3 <= FS(4);
+  alu_select_lines <= (S2 & S1 & S0);
+  shifter_select_lines <= (S2 & S1);
+  function_select_line <= S3;
+ 
+  ALU: [%~ alu:name %] [% alu:ports :uut
+                        :subs '(("S" . "alu_select_lines")
+                                ("G" . "alu_output")
+                                ("C" . "alu_carry_output")) %]
+
+  Shifter: [%~ shifter:name %] [% shifter:ports :uut 
+                                :subs '(("S" . "shifter_select_lines")
+                                        ("G" . "shifter_output")
+                                        ("C" . "shifter_carry_output"))%]
+
+  MuxF: [%~ mux:name %] [% mux:ports :uut
+                           :subs '(("sel" . "function_select_line")
+                                   ("Q" . "F_internal")
+                                   ("D0" . "alu_output")
+                                   ("D1" . "shifter_output")) %]
+
+  C_Flag: [% mux:config "dp-cflag" [@[%~ mux:name %] [% mux:ports :uut
+                                                    :subs '(("sel" . "function_select_line")
+                                                            ("D0" . "alu_carry_output")
+                                                            ("D1" . "shifter_carry_output")
+                                                            ("Q" . "C"))  %]@]%]
+
+  Z_Flag: [%~ zero-detector:name %] [% zero-detector:ports :uut
+                                     :subs '(("A" . "F_internal")
+                                             ("Z" . "Z_internal")) %]
+
+  G <= F_internal;
+  Z <= Z_internal;
+  N <= F_internal(31);
+  
+end Behavioural;@]%]@]%]

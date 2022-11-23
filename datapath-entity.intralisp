@@ -1,0 +1,48 @@
+[%! "datapath.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "register-file.intralisp" %]
+[%! "functional-unit.intralisp" %]
+[% in-package :datapath %]
+
+[% defun entity () [@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+[% mux:config "cpu-2-32"
+[@architecture Behavioural of [%~ name %] is
+   [% common:component #'mux:name #'mux:ports %]
+   [% common:component #'register-file:name #'register-file:ports %]
+   [% common:component #'functional-unit:name #'functional-unit:ports %]
+
+   signal rf_b : std_logic_vector (31 downto 0);
+   signal rf_a : std_logic_vector (31 downto 0);
+   signal rf_d : std_logic_vector (31 downto 0);
+   signal mux_b_output : std_logic_vector (31 downto 0);
+   signal mux_d_output : std_logic_vector (31 downto 0);
+   signal functional_unit_output : std_logic_vector (31 downto 0);
+begin
+   RegFile: [%~ register-file:name %] [% register-file:ports :uut
+                                        :subs '(("B" . "rf_b")
+                                                ("A" . "rf_a")
+                                                ("D" . "mux_d_output")) %]
+   MuxB: [%~ mux:name %] [% mux:ports :uut
+                           :subs '(("D0" . "rf_b")
+                                   ("D1" . "IR_IN")
+                                   ("Q" . "mux_b_output")
+                                   ("sel" . "MB")) %]
+
+   MuxD: [%~ mux:name %] [% mux:ports :uut
+                           :subs '(("D0" . "functional_unit_output")
+                                   ("D1" . "DATA_IN")
+                                   ("Q" . "mux_d_output")
+                                   ("sel" . "MD")) %]
+
+  FunctionalUnit: [%~ functional-unit:name %] [% functional-unit:ports :uut
+                                              :subs '(("A" . "rf_a")
+                                                      ("B" . "mux_b_output")
+                                                      ("G" . "functional_unit_output")) %]
+
+  ADD <= rf_a;
+end Behavioural;@]%]@]%]

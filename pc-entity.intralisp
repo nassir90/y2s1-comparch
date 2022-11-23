@@ -1,0 +1,60 @@
+[%! "pc.intralisp" %]
+[%! "register.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "ripple-carry-adder.intralisp" %]
+[% in-package :pc %]
+[% defun entity ()
+ (mux:config "cpu-2-32"
+(common:entity #'name #'ports
+ :header [@^
+
+    component [%~ register:name %] is [% register:ports %]
+    end component;
+    
+    component [%~ mux:name %] is [% mux:ports %]
+    end component;
+                                   
+    component [%~ ripple-carry-adder:name %] is [% ripple-carry-adder:ports %]
+    end component;
+
+    signal selected_offset : std_logic_vector(31 downto 0);
+    signal pc_internal : std_logic_vector(31 downto 0);
+    signal pc_internal_but_offset : std_logic_vector(31 downto 0);
+    signal reset_mux_out : std_logic_vector(31 downto 0);
+    signal pc_load_0 : std_logic;
+    signal pc_load_1 : std_logic;
+    signal who_cares : std_logic;
+ @]
+
+ :body [@^
+
+  pc_load_0 <= RESET or PL after 5 ns;
+  pc_load_1 <= pc_load_1 or PI after 5 ns;
+ 
+  PL_PI_Mux: [%~ mux:name %] [% mux:ports :uut
+                             :subs '(("D0" . "Displacement")
+                                     ("D1" . "X\"00000001\"")
+                                     ("sel" . "PI")
+                                     ("Q" . "selected_offset")) %]
+
+  Adder: [%~ ripple-carry-adder:name %] [% ripple-carry-adder:ports :uut
+                                         :subs '(("A" . "pc_internal")
+                                                 ("B" . "selected_offset")
+                                                 ("C_IN" . "'0'")
+                                                 ("SUM" . "pc_internal_but_offset")
+                                                 ("V_OUT" . "who_cares")
+                                                 ("C_OUT" . "who_cares")) %]
+  ResetMux: [%~ mux:name %] [% mux:ports :uut
+                             :subs '(("D0" . "pc_internal_but_offset")
+                                     ("D1" . "X\"00000000\"")
+                                     ("sel" . "RESET")
+                                     ("Q" . "reset_mux_out")) %]
+
+  PC: [%~ register:name %] [% register:ports :uut
+                            :subs '(("D" . "reset_mux_out")
+                                    ("Load" . "pc_load_1")
+                                    ("Q" . "pc_internal")
+                                    ("EN" . "pc_load_1")) %]
+  INST_ADD <= pc_internal;
+  
+        @])) %]

@@ -1,0 +1,14 @@
+[%! "common.intralisp" %]
+[% defpackage :car
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :car %]
+[% defvar size 17 %]
+[% defun name () [@^CPU_ControlAddressRegister_21364466@] %]
+[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
+[@[% common:port-header %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "AUX_IN" :size common:control-memory-size %] 
+     [% common:port "sel" %]
+     [% common:port "RESET" %]
+     [% common:port "ADDR_OUT" :size size :direction "out" :end "" %][% common:port-trailer %]@]%]

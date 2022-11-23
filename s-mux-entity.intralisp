@@ -1,0 +1,26 @@
+[%! "s-mux.intralisp" %]
+[%! "mux.intralisp" %]
+[% in-package :s-mux %]
+[% defun entity ()
+ (mux:config "s-mux"
+ (common:entity #'name #'ports
+ :header [@^
+ component [%~ mux:name %] is [% mux:ports %]
+ end component;
+
+ signal not_c : std_logic; 
+ signal not_z : std_logic; 
+ @]
+:body [@^
+  not_c <= not C after 5 ns;
+  not_z <= not Z after 5 ns;
+ InnerMux: [%~ mux:name %] [% mux:ports :uut
+                            :subs '(("D0" . "'0'")
+                                    ("D1" . "'1'")
+                                    ("D2" . "C")
+                                    ("D3" . "V")
+                                    ("D4" . "Z")
+                                    ("D5" . "N")
+                                    ("D6" . "not_c")
+                                    ("D7" . "not_z")) %]
+       @])) %]

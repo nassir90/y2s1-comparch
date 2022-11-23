@@ -1,0 +1,17 @@
+[%! "common.intralisp" %]
+[% defpackage :pc
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :pc %]
+[% defvar size 32 %]
+[% defun name () [@^CPU_PC_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %]
+     [% common:port "INST_ADD" :size 32 :direction "out" %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "Displacement" :size 32 %]
+     [% common:port "PI" %]
+     [% common:port "RESET" %]
+     [% common:port "PL" :end "" %][% common:port-trailer %]@]%]

@@ -1,14 +1,14 @@
 [%! "b-logic-vector.intralisp" %]
 [%! "b-logic-bit.intralisp" %]
 [% in-package :b-logic-vector %]
-[% defun entity() [@library ieee;
+[% defun entity () [@library ieee;
 use ieee.std_logic_1164.all;
 
 entity [%~ name %] is [% ports %]
 end [%~ name %];
 
 architecture Behavioural of [%~ name %] is
-   component [%~ b-logic-bit:name %] is [%~ b-logic-bit:ports %]
+   component [%~ b-logic-bit:name %] is [% b-logic-bit:ports %]
    end component;
 begin
   [% dotimes (i size)[@

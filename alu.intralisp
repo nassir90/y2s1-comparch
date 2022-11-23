@@ -1,0 +1,19 @@
+[%! "common.intralisp" %]
+[% defpackage :alu
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :alu %]
+[% defun name () "DP_ArithmeticLogicUnit_21364466" %]
+[% defvar size 32 %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" :size size %]
+     [% common:port "B" :size size %] 
+     [% common:port "S" :size 3 %]
+     [% common:port "C_IN" %]
+     [% common:port "G" :size size :direction "out" %]
+     [% common:port "V" :direction "out" %]
+     [% common:port "C" :direction "out" :end "" %][% common:port-trailer %]@]%]

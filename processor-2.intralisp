@@ -1,0 +1,32 @@
+[%! "common.intralisp" %]
+[% defpackage :processor-2
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :processor-2 %]
+[% defun name () "CPU_Processor_Test02_21364466" %]
+[% defvar size 32 %]
+[% defun ports (&optional common:mode &key subs &aux (common:subs subs))
+[@[% common:port-header %]
+     [% common:port "INST_ADDRESS" :size 32 %]
+     [% common:port "MW" %]
+     [% common:port "MM" %]
+     [% unless (eq common:mode :signals) (common:port "CLK") %]
+     [% common:port "IR_IN" :size size %]
+     [% common:port "MD" %]
+     [% common:port "MB" %]
+     [% common:port "FS" :size 5 %]
+     [% common:port "DR" :size 5 %]
+     [% common:port "SA" :size 5 %]
+     [% common:port "SB" :size 5 %]
+     [% common:port "TD" :size 4 %]
+     [% common:port "TA" :size 4 %]
+     [% common:port "TB" :size 4 %]
+     [% common:port "RW" %]
+
+     [% common:port "RESET_N" %]
+     [% common:port "RESET_Z" %]
+     [% common:port "RESET_V" %]
+     [% common:port "RESET_C" %]
+     [% common:port "LOAD_FLAGS" %]
+     [% common:port "STATUS_VECTOR" :direction "out" :size 4 :end "" %][% common:port-trailer %]@]%]

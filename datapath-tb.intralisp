@@ -1,0 +1,65 @@
+[%! "datapath.intralisp" %]
+[% in-package :datapath %]
+
+[% defun tb () (common:tb :name #'name :ports #'ports
+:header [@^[% common:define-clock %]@]
+:body [@^
+   [% common:alternate-clock %]
+   stim_proc: process begin
+       -- Register file stuff
+       TA <= "0000";
+       TB <= "0000";
+       TD <= "0000";
+       SA <= "00000";
+       SB <= "00000";
+       RW <= '1';
+
+       -- Datapath stuff
+       MD <= '1';
+       MB <= '0';
+       FS <= "00000";
+
+       [% loop for i from 0 below 32 do [@
+       wait until falling_edge(CLK);
+       DATA_IN <= [%~ common:wrap (- 21364466 i) :size 32 %];
+       DR <= [%~ common:wrap i :size 5 %];
+       @]%]
+
+      [% loop for i from 1 below 16 do [@
+       wait until falling_edge(CLK);
+       DATA_IN <= [%~ common:wrap (- 21364466 32 i) :size 32 %];
+       TD <= [%~ common:wrap i :size 4 %];
+       @]%]
+
+       wait until falling_edge(CLK);
+       TD <= "0000";
+       SA <= [%~ common:wrap (+ 6 5) :size 5 %];
+       SB <= [%~ common:wrap (+ 6 16) :size 5 %];
+       DR <= [%~ common:wrap 6 :size 5 %];
+
+       MD <= '0';
+
+       [% dolist (inputs (with-open-file (*standard-input* "functional-unit-functions.lisp") (read))) [@
+        --- Test the micro-operation "[%= (cadr inputs) %]"
+        FS <= [%~ common:wrap (car inputs) %];
+        wait until falling_edge(CLK);
+        @]%]
+
+        --- Now test things with my student number as an input to the B port
+        wait until falling_edge(CLK);
+        MB <= '1';
+        IR_IN <= [%~ common:wrap 21364466 :size 32 %];
+        RW <= '0';
+
+        wait until falling_edge(CLK);
+        RW <= '1';
+
+       [% dolist (inputs (with-open-file (*standard-input* "functional-unit-functions.lisp") (read))) (when (find #\B (cadr inputs)) [@
+        --- Test the micro-operation "[%= (cadr inputs) %]"
+        FS <= [%~ common:wrap (car inputs) %];
+        wait until falling_edge(CLK);
+        @])%]
+       
+   [% common:end-test %]
+   end process;
+@])%]

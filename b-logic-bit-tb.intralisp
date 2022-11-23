@@ -20,7 +20,7 @@ process
 begin
 
 [% dotimes (i 4)
-[@    -- Test the ability of the b-logic to [%~ case i (0 "transfer") (1 "invert") (2 "zero-fill") (3 "one-fill")%]
+[@    -- Test the ability of the b-logic to [%~ case i (1 "transfer") (2 "invert") (0 "zero-fill") (3 "one-fill")%]
     S <= [%~ common:wrap i :size 2 %];
 @]
 (dotimes (i 2)

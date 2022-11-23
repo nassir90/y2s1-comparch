@@ -1,0 +1,47 @@
+[%! "alu.intralisp" %]
+[%! "b-logic-vector.intralisp" %]
+[%! "logic-vector.intralisp" %]
+[%! "ripple-carry-adder.intralisp" %]
+[%! "mux.intralisp" %]
+[% in-package :alu %]  
+[% defun entity ()
+[@library ieee;
+use ieee.std_logic_1164.all;
+
+entity [%~ name %] is [% ports %]
+end [%~ name %];
+
+[% mux:config "cpu-2-32"
+[@architecture Behavioural of [%~ name %] is
+   [% common:component #' ripple-carry-adder:name #'ripple-carry-adder:ports %]
+   [% common:component #'b-logic-vector:name #'b-logic-vector:ports %]
+   [% common:component #'logic-vector:name #'logic-vector:ports %]
+   [% common:component #'mux:name #'mux:ports %]
+   signal b_logic_output : std_logic_vector(31 downto 0);
+   signal adder_output  : std_logic_vector(31 downto 0);
+   signal logic_circuit_output  : std_logic_vector(31 downto 0);
+   signal child_selector : std_logic_vector(1 downto 0);
+   signal function_selector : std_logic;
+begin
+
+   child_selector <= S(1 downto 0);
+   function_selector <= S(2);
+  
+   BLogic: [%~ b-logic-vector:name %] [% b-logic-vector:ports :uut
+                                         :subs '(("S" . "child_selector")
+                                                 ("Y" . "b_logic_output")) %]
+   Adder: [%~ ripple-carry-adder:name %] [% ripple-carry-adder:ports :uut
+                                            :subs '(("B" . "b_logic_output")
+                                                    ("V_OUT" . "V")
+                                                    ("C_OUT" . "C")
+                                                    ("SUM" . "adder_output")) %]
+   LogicCircuit: [%~ logic-vector:name %] [% logic-vector:ports :uut
+                                            :subs '(("S" . "child_selector")
+                                                    ("G" . "logic_circuit_output")) %]
+   ALUMux: [%~ mux:name %] [% mux:ports :uut
+                             :subs '(("D0" . "adder_output")
+                                     ("D1" . "logic_circuit_output")
+                                     ("sel" . "function_selector")
+                                     ("Q" . "G"))  %]
+end Behavioural;
+@]%]@]%]

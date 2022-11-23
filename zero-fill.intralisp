@@ -1,0 +1,13 @@
+[%! "common.intralisp" %]
+[% defpackage :zero-fill
+ (:use :cl)
+ (:export :name :tb :entity :ports :size) %]
+[% in-package :zero-fill %]
+[% defvar size 32 %]
+[% defun name () [@^CPU_ZeroFill_21364466@] %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %]
+     [% common:port "B" :size 5 %]
+     [% common:port "G" :size size :direction "out" :end "" %][% common:port-trailer %]@]%]

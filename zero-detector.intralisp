@@ -1,0 +1,14 @@
+[%! "common.intralisp" %]
+[% defpackage :zero-detector
+   (:use :cl)
+   (:export :ports :entity :tb
+            :name) %]
+[% in-package :zero-detector %]
+[% defun name () "DP_ZeroDetection_21364466" %]
+[% defvar size 32 %]
+[% defun ports (&optional common:mode
+                &key subs
+                &aux (common:subs subs))
+[@[% common:port-header %] 
+     [% common:port "A" :size size %]
+     [% common:port "Z" :direction "out" :end "" %][% common:port-trailer %]@]%]

@@ -1,0 +1,42 @@
+[%! "processor-1.intralisp" %]
+[%! "mux.intralisp" %]
+[%! "memory.intralisp" %]
+[%! "datapath.intralisp" %]
+  [% in-package :processor-1 %]
+[% defun entity ()
+ (mux:config "cpu-2-32"
+ (common:entity #'name #'ports
+  :header [@^
+  component [%~ mux:name %] is [% mux:ports %]
+  end component;
+                               
+  component [%~ memory:name %] is [% memory:ports %]
+  end component;
+
+  component [%~ datapath:name %] is [% datapath:ports %]
+  end component;
+
+ signal ram_out : std_logic_vector(31 downto 0);
+ signal mux_m_out : std_logic_vector(31 downto 0);
+ signal datapath_add : std_logic_vector(31 downto 0);
+ signal datapath_general_out : std_logic_vector(31 downto 0);
+ 
+ @]
+:body [@^
+    Datapath: [%~ datapath:name %] [% datapath:ports :uut
+                                    :subs '(("ADD" . "datapath_add")
+                                            ("DATA_IN" . "ram_out")
+                                            ("DATA_OUT" . "datapath_general_out")) %]
+   MuxM: [%~ mux:name %] [% mux:ports :uut
+                                    :subs '(("D0" . "datapath_add")
+                                            ("D1" . "INST_ADDRESS")
+                                            ("sel" . "MM")
+                                            ("Q" . "mux_m_out")) %]
+
+       RAM: [%~ memory:name %] [% memory:ports :uut
+                                    :subs '(("ADDRESS" . "mux_m_out")
+                                            ("DATA_IN" . "datapath_general_out")
+                                            ("RW_MEMORY" . "MW")
+                                            ("DATA_OUT" . "ram_out")) %]
+       @]))%]
+
