@@ -1,0 +1,5 @@
+# this script shouldn't exist, but the makefile is fucked up
+rm -fr ./build/
+make -j8 intralisp
+make analyse
+make -j8 all
