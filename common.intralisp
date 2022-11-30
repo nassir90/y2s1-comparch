@@ -12,12 +12,16 @@
 [% defvar mode nil %]
 [% defvar subs nil %]
 [% defvar zero nil %]
-[% defun wrap (constant &key size
+[% defun wrap (constant &key size (format :binary)
                &aux (constant (if (and (not size) (numberp constant)) (format nil "~d" constant) constant)))
- (if size (wrap [@^[%=~ "~v,'0b" size constant%]@])
+ (if size (case format
+           (:binary (wrap [@^[%=~ "~v,'0b" size constant %]@] :format format))
+           (:hex (wrap [@^[%=~ "~v,'0x" (ceiling (/ size 4)) constant %]@] :format format)))
     (if (= 1 (length constant))
         [@^'[%=constant%]'@]
-        [@^"[%=constant%]"@])) %]
+        (case format
+         (:binary [@^"[%=constant%]"@])
+         (:hex [@^X"[%=constant%]"@]))))%]
 [% defun port-header () (unless (member mode '(:signals :append)) [@port [%~ if mode "map (" "(" %] @])%]
 [% defun port-trailer () (when (not (member mode '(:signals :append))) [@[%= ");" %]@]) %]
 [% defun sub (string)
@@ -45,7 +49,7 @@ wait until falling_edge(CLK);
 RUNNING <= '0';@]%]
 assert false report "Test complete" severity note;
 wait;@]%]
-[% defun tb (&key name ports header body
+[% defun tb (&key name ports header body clock process
              &aux (name (if (functionp name) (funcall name) name))) [@
 library ieee;
 use ieee.std_logic_1164.all;
@@ -57,11 +61,20 @@ architecture [%= name %]_impl of [%= name %]_TB is
   
    component [%= name %] is [% funcall ports %]
    end component;
+
+   [% when clock (define-clock) %]
+   
 [% funcall ports :signals %]
 [%~ or header ""  %]
 begin
   uut: [%= name %] [% funcall ports :uut %]
-[%= body %]
+  [% when clock (alternate-clock) %]
+[%~ or body "" %]
+  [% when process
+  [@ stim_proc: process begin
+      [%= process %]
+      [% end-test %]
+     end process;@]%]
 end [%= name %]_impl;
 @]%]
 [% defun component (name ports)

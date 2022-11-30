@@ -13,7 +13,6 @@
      [% common:port "PL" %]
      [% common:port "RESET" %]
  
-     [% common:port "INST_ADDRESS" :size 32 %]
      [% common:port "MW" %]
      [% common:port "MM" %]
      [% unless (eq common:mode :signals) (common:port "CLK") %]

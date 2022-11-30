@@ -29,7 +29,7 @@
  :body [@^
 
   pc_load_0 <= RESET or PL after 5 ns;
-  pc_load_1 <= pc_load_1 or PI after 5 ns;
+  pc_load_1 <= pc_load_0 or PI after 5 ns;
  
   PL_PI_Mux: [%~ mux:name %] [% mux:ports :uut
                              :subs '(("D0" . "Displacement")
@@ -45,8 +45,8 @@
                                                  ("V_OUT" . "who_cares")
                                                  ("C_OUT" . "who_cares")) %]
   ResetMux: [%~ mux:name %] [% mux:ports :uut
-                             :subs '(("D0" . "pc_internal_but_offset")
-                                     ("D1" . "X\"00000000\"")
+                             :subs `(("D0" . "pc_internal_but_offset")
+                                     ("D1" . ,(common:wrap 6 :format :hex :size 32))
                                      ("sel" . "RESET")
                                      ("Q" . "reset_mux_out")) %]
 

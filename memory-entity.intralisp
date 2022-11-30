@@ -1,5 +1,14 @@
 [%! "memory.intralisp" %]
 [% in-package :memory %]
+[% load "compiler.lisp" %]
+[% load "ripple.lisp" %]
+[% defvar compiled-assembly (multiple-value-bind (microcode assembly) (compile-microcode-and-assembly microcode assembly) assembly) %]
+[% defvar instructions %]
+[% defun 2-hex (i) (format t "~2,'0x" i) %]
+[% defun maybe-terminate (i max &optional end)
+ [@[%~ if (= i (1- max)) "" "," %] -- [% 2-hex i %]@]%]
+[% defun dump-empty (i) [@X"[%=~ "~8,'0x" i %]"[%maybe-terminate i words%] -- [% 2-hex i %]
+    @]%]
 [% defun entity () [@library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -11,19 +20,20 @@ architecture Behavioral of [%~ name %] is
   type ram_t is array (0 to [%~ 1- words %]) of std_logic_vector(31 downto 0);
 
   -- Initialise ram in TB?
-  signal ram : ram_t;-- := (
-    [% dotimes (i words)
-    [@--X"[%=~ "~8,'0x" (+ 66 i) %]"[%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
-    @]%]--);
+  signal ram : ram_t := (
+    [% loop for i from 0 below 6 do (dump-empty i) %]
+    [% dolist (instruction compiled-assembly) [@[%=instruction%],
+    @]%]
+    [% loop for i from (+ 6 (length compiled-assembly)) below words do (dump-empty i) %]);
 begin
   process (CLK)
     begin
 if rising_edge(CLK) then
   if RW_MEMORY='1' then
-    ram(to_integer(unsigned(ADDRESS(3 downto 0)))) <= DATA_IN after 2 ns;
+    ram(to_integer(unsigned(ADDRESS(6 downto 0)))) <= DATA_IN after 2 ns;
     end if;
    end if; 
  end process;
 
- DATA_OUT <= ram(to_integer(unsigned(ADDRESS(3 downto 0)))) after 2 ns;
+ DATA_OUT <= ram(to_integer(unsigned(ADDRESS(6 downto 0)))) after 2 ns;
 end Behavioral;@]%]

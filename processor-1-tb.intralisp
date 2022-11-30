@@ -1,0 +1,108 @@
+[%! "processor-1.intralisp" %]
+[%! "memory.intralisp" %]
+[% in-package :processor-1 %]
+[% load "compiler.lisp" %]
+[% defvar functions (with-open-file (*standard-input* "functional-unit-functions.lisp") (read)) %]
+[% defun tb ()
+ (common:tb :name #'name
+  :ports #'ports
+  :clock t
+  :process [@^
+  TA <= "0000";
+  TB <= "0000";
+  TD <= "0000";
+  SA <= "00000";
+  SB <= "00000";
+  DR <= [%~ common:wrap 0 :size 5 %];
+  MD <= '0'; -- use functional unit to load values
+  FS <= [%~ decode-function 'mov-b %]; -- Use register transfer of B
+  MM <= '1'; -- Use INST_ADDRESS (to be zero extended) port for value (established 
+  
+  -- Load all load all memory addresses: M[i]=66+i
+  -- We simulate the program counter
+  
+  MB <= '1'; -- Use IR_IN for b port loading
+  MW <= '1'; -- Enable writing to memory
+  
+  [% dotimes (i memory:words) [@
+  -- Load value into register
+  wait until falling_edge(CLK);
+  IR_IN <= [%~ common:wrap (+ 66 i) :size 32 %];
+  INST_ADDRESS <= [%~ common:wrap i :size 32 %];
+  @]%]
+
+  wait until falling_edge(CLK);
+  RW <= '0';
+  MW <= '0';
+  MD <= '1'; -- Use DATA_IN from memory, bypass functional unit
+  
+  -- Load register file normal registers
+  [% loop for i from 0 below 32 do [@
+  wait until falling_edge(CLK);
+  RW <= '1';
+  SA <= [%~ common:wrap i :size 5 %]; -- for diag
+  SB <= [%~ common:wrap i :size 5 %]; -- nostics
+  DR <= [%~ common:wrap i :size 5 %];
+  INST_ADDRESS <= [%~ common:wrap i :size 32 %];
+  @]%]
+
+  -- Load register file temp registers
+  [% loop for i from 1 below 16 do [@
+  wait until falling_edge(CLK);
+  RW <= '1';
+  TA <= [%~ common:wrap i :size 4 %]; -- for diag
+  TB <= [%~ common:wrap i :size 4 %]; -- nostics
+  TD <= [%~ common:wrap i :size 4 %];
+  INST_ADDRESS <= [%~ common:wrap (+ 31 i) :size 32 %];
+  @]%]
+
+  -- Perform micro operations i through 16 with
+  -- DR=6+2+i=8+i
+  wait until falling_edge(CLK);
+  RW <= '0';
+  TA <= "0000";
+  TB <= "0000";
+  TD <= "0000";
+  SA <= [%~ common:wrap 6 :size 5 %];
+  SB <= [%~ common:wrap 7 :size 5 %];
+  MD <= '0'; -- Use functional unit output
+  
+  [% loop for i from 0
+          for inputs in functions
+  do [@
+  --- Test the micro-operation "[%= (cadr inputs) %]"
+  wait until falling_edge(CLK);
+  RW <= '1';
+  DR <= [%~ common:wrap (+ 8 i) :size 5 %];
+  FS <= [%~ common:wrap (car inputs) %];
+  @]%]
+
+  -- Store results in RAM
+  wait until falling_edge(CLK);
+  RW <= '0';
+  MB <= '0'; -- Use register file B port for DATA_OUT(RF)=>DATA_IN(RAM)
+
+  [% loop for i from 0 below (length functions)
+  do [@
+  wait until falling_edge(CLK);
+  MM <= '1';
+  MW <= '1';
+  SB <= [%~ common:wrap (+ 8 i) :size 5 %];
+  INST_ADDRESS <= [%~ common:wrap i :size 32 %];
+  @]%]
+
+  -- Backfill results to registers
+  wait until falling_edge(CLK);
+  MW <= '0';
+  MD <= '1'; -- Use DATA_IN from memory
+
+  [% loop for i from 0 below (length functions)
+  do [@
+  wait until falling_edge(CLK);
+  RW <= '1';
+  DR <= [%~ common:wrap i :size 5 %];
+  INST_ADDRESS <= [%~ common:wrap i :size 32 %];
+  @]%]
+  
+  [% common:end-test %]
+  @]) %]

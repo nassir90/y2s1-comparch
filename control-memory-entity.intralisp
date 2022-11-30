@@ -2,6 +2,17 @@
 [% in-package :control-memory %]
 [% load "control-memory-content.lisp" %]
 [% load "compiler.lisp" %]
+[% defvar compiled-microcode (compile-microcode-and-assembly microcode assembly) %]
+[% defun empty-at (i)
+[@"[%=~ "~51,'0b" (+ 66 i) %]"[%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
+@]%]
+[% defun dump-micro-operations ()
+ (dolist (function-code-pair functional-unit-functions)
+     (let ((function-code (car function-code-pair))
+           (function-name (cadr function-code-pair)))
+    [@[%~parse-control-word `(,(concatenate 'string "\"" function-code "\"") r0 r1 r2
+                              ,@(when (equal function-name "F=A^B") '(:next-address 66 :jump-condition always :ir-source :control))) %], -- [%= function-name%]
+    @]))%]
 [% defun entity () [@library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -12,9 +23,10 @@ end [%~ name %];
 architecture Behavioral of [%~ name %] is
   type rom_t is array (0 to [%~ 1- words %]) of std_logic_vector (50 downto 0);
   signal rom : rom_t := (
-    [% dotimes (i words)
-    [@"[%=~ "~51,'0b" (+ 66 i) %]"[%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
-    @]%]);
+    [% loop for i from 0 below 66 do [@    @] (empty-at i) %]
+    [% dolist (instruction compiled-microcode) [@[%=instruction%],
+    @]%]
+    [% loop for i from (+ 66 (length compiled-microcode)) below words do [@    @] (empty-at i) %]);
   signal content : std_logic_vector(50 downto 0);
 begin
   content <= rom(to_integer(unsigned(ADDRESS([%~ ceiling (log words 2) %] downto 0))));

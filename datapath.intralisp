@@ -24,7 +24,7 @@
      [% common:port "TA" :size 4 %]
      [% common:port "TB" :size 4 %]
      [% common:port "RW" %]
-     [% common:port "DATA_OUT" :size size %]
+     [% common:port "DATA_OUT" :direction "out" :size size %]
      [% common:port "ADD" :direction "out" :size size %]
      [% common:port "N" :direction "out" %]
      [% common:port "Z" :direction "out" %]

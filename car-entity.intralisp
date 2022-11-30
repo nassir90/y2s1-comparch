@@ -37,7 +37,7 @@ NextValueMux: [%~ mux:name %] [% mux:ports :uut
        
 ResetMux: [%~ mux:name %] [% mux:ports :uut
                            :subs `(("D0" . "next_value_mux_out")
-                                   ("D1" . ,(common:wrap 6 :size 17))
+                                   ("D1" . ,(common:wrap 66 :size 17))
                                    ("Q" . reset_mux_out)
                                    ("sel" . "RESET")) %]
 

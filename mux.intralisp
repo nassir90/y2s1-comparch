@@ -43,7 +43,7 @@ sel is just a string"
    ("s-mux" . ((size 1)
                (data-lines 8)
                (select-lines 3)))
-   ("cpu-2-17" . ((name "CPU_Mux2_17Bit_21364466")
+   ("cpu-2-17" . ((name "CPU_Mux2_17Bit")
                 (size 17)
                 (data-lines 2)
                 (select-lines 1)))

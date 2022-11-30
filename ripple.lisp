@@ -36,7 +36,12 @@
 (defun uneg (n &optional (base 32))
   (- (expt 2 base) n))
 
+(defun irep (n &optional (base 32))
+  "Ensure numbers are in two's complement."
+  (if (< n 0) (neg (- n) base) n))
+
 (defun srep (n &optional (base 32))
+  "Used for printing."
   (if (>= n (expt 2 (1- base)))
       (- (uneg n))
       n))

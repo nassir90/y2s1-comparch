@@ -44,5 +44,6 @@ begin
                                                       ("B" . "mux_b_output")
                                                       ("G" . "functional_unit_output")) %]
 
+  DATA_OUT <= mux_b_output;
   ADD <= rf_a;
 end Behavioural;@]%]@]%]

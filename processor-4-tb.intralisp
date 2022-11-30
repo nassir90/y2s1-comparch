@@ -1,0 +1,30 @@
+[%! "processor-4.intralisp" %]
+[% in-package :processor-4 %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :clock t
+ :process [@^
+      wait until falling_edge(CLK);
+      RESET <= '1';
+      
+      wait until falling_edge(CLK);
+      RESET <= '0';
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+
+      -- Around here, MS should be set to ALWAYS (1) for the uninitiated.
+      
+      wait until falling_edge(CLK);
+      wait until falling_edge(CLK);
+ @]) %]

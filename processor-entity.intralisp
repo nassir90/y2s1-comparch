@@ -110,7 +110,7 @@ InstReg: [%~ ir:name %] [% ir:ports :uut
        [@MuxC: [%~ mux:name %] [% mux:ports :uut
                             :subs '(("D0" . "NA")
                                     ("D1" . "OPCODE")
-                                    ("Q" . "ADDRESS")
+                                    ("Q" . "mux_c_out")
                                     ("sel" . "MC")) %]@]%]
 
 
@@ -129,4 +129,5 @@ InstReg: [%~ ir:name %] [% ir:ports :uut
                                        ("Q" . "mux_s_out")) %]
 
 
-          ControlROM: [%~ control-memory:name %] [% control-memory:ports :uut %]@])%]
+          ControlROM: [%~ control-memory:name %] [% control-memory:ports :uut
+                                                  :subs '(("ADDRESS" . "car_out")) %]@])%]

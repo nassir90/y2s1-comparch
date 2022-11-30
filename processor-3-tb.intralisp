@@ -1,0 +1,56 @@
+[%! "processor-3.intralisp" %]
+[% in-package :processor-3 %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :clock t
+  :process [@^
+  LOAD_FLAGS <= '0';
+            
+  wait until falling_edge(CLK);
+  RESET <= '1';
+  RESET_N <= '1';
+  RESET_Z <= '1';
+  RESET_V <= '1';
+  RESET_C <= '1';
+  PL <= '0';
+  PI <= '0';
+  MM <= '1';
+  IL <= '1';
+
+
+  wait until falling_edge(CLK);
+  RESET <= '0';
+  RESET_N <= '0';
+  RESET_Z <= '0';
+  RESET_V <= '0';
+  RESET_C <= '0';
+  PI <= '1';
+  
+  wait until falling_edge(CLK);
+  
+  wait until falling_edge(CLK);
+  
+  wait until falling_edge(CLK);
+  
+  wait until falling_edge(CLK);
+
+  -- Load the 12th instruction (pc=11) ?
+  wait until falling_edge(CLK);
+
+  -- Don't increment, keep instruction 11.
+  -- Use instruction 11 to perform a jump, which will cause
+  -- To return to pc=6.
+  wait until falling_edge(CLK);
+  PI <= '0';
+  PL <= '1';
+
+  -- Continue incrementing
+  wait until falling_edge(CLK);
+  PI <= '1';
+  -- On the rising edge of the clock, you can think of this happening:
+  --    The current value of the PC is used to load the IR.
+  --    The PC is then* incremented. The PC is actually incremented
+  --    immediately, but due to the propagation delay, the new value
+  --    is received by memory long after the IR has loaded the existing value.
+  --
+  -- Am I wrong?
+  @]) %]

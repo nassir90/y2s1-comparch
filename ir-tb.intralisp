@@ -9,7 +9,7 @@
  :body [@^
  [% common:alternate-clock %]
  stim_proc: process begin
-     INSTRUCTION_IN <= [%~ parse-instruction `(44 4 6 6) %];
+     INSTRUCTION_IN <= [%~ parse-instruction `(64 4 6 6) %];
      wait until falling_edge(CLK);
      IL <= '0';
      wait until falling_edge(CLK);

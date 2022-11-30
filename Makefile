@@ -46,7 +46,7 @@ $(build_dir)/design $(build_dir)/simulation $(build_dir)/waves:
 clean:
 	rm -fr $(build_dir)
 
-sync:
+sync: intralisp
 	rsync --no-motd --checksum -azP --delete $(build_dir)/simulation/ 'm:$(remote_project_dir)/registerfile.srcs/sim_1/imports/simulation'
 	rsync --no-motd --checksum -azP --delete $(build_dir)/design/ 'm:$(remote_project_dir)/registerfile.srcs/sources_1/imports/design'
 	rsync --no-motd --checksum -azP --delete $(build_dir)/registerfile.xpr 'm:$(remote_project_dir)/registerfile.xpr'

@@ -69,7 +69,7 @@ InstReg: [%~ ir:name %] [% ir:ports :uut
                                             ("DATA_OUT" . "datapath_general_out")) %]
    MuxM: [%~ mux:name %] [% mux:ports :uut
                                     :subs '(("D0" . "datapath_add")
-                                            ("D1" . "INST_ADDRESS")
+                                            ("D1" . "pc_output")
                                             ("sel" . "MM")
                                             ("Q" . "mux_m_out")) %]
 

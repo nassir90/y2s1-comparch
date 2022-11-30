@@ -1,0 +1,76 @@
+[%! "processor-2.intralisp" %]
+[% in-package :processor-2 %]
+[% load "ripple.lisp" %]
+[% load "compiler.lisp" %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :clock t
+  :process [@^
+  SA <= "00000";
+  SB <= "00000";
+  DR <= "00000";
+  TA <= "0000";
+  TB <= "0000";
+  TD <= "0000";
+  
+  MM <= '1'; -- Use immediate value for address
+
+  [% loop for i from 0
+          for v in `((lsl 0 ,(neg 21364466) "shift left (only b value is used) (carry)")
+                     (add ,(neg 21364466) ,(expt 2 31) "add final bit (overflow)")
+                     (sub #1=21364466 #1# "subtract A from A (A - A = 0) (zerp)")
+                     (sub-x #1# #1# "perform A+(not A) =-1? (negative)"))
+          do [@
+  -- We will [%~ nth 3 v %]
+  -- Ignore sporadic FU outputs
+   LOAD_FLAGS <= '0';
+   RESET_N <= '0';
+   RESET_Z <= '0';
+   RESET_V <= '0';
+   RESET_C <= '0';
+          
+   -- Load A value into memory
+   MB <= '1';
+   RW <= '0';
+   MW <= '1';
+   INST_ADDRESS <= [%~ common:wrap (* i 2) :size 32 %]; -- [%~ * i 2 %]
+   IR_IN <= [%~ common:wrap (nth 1 v) :size 32 %]; -- [%~ srep (nth 1 v) %]
+   wait until falling_edge(CLK);
+   
+   -- Load A value into register
+   RW <= '1'; -- Enable writing to the register
+   MD <= '1'; -- Load values in via the memory rather than the functional unit
+   DR <= [%~ common:wrap (* i 2) :size 5 %];
+   wait until falling_edge(CLK);
+   
+   -- Load B value into memory
+   MB <= '1';
+   RW <= '0';
+   MW <= '1';
+   INST_ADDRESS <= [%~ common:wrap (1+ (* i 2)) :size 32 %]; -- [%~ 1+ (* i 2) %]
+   IR_IN <= [%~ common:wrap (nth 2 v) :size 32 %]; -- [%~ srep (nth 2 v) %]
+   wait until falling_edge(CLK);
+   
+   -- Load B value into register
+   RW <= '1'; -- Enable writing to the register
+   MD <= '1'; -- Load values in via the memory rather than the functional unit
+   DR <= [%~ common:wrap (1+ (* i 2)) :size 5 %];
+   wait until falling_edge(CLK);
+
+   -- Perform ALU operation
+   RW <= '0';
+   LOAD_FLAGS <= '1';
+   
+   SA <= [%~ common:wrap (* i 2) :size 5 %];
+   SB <= [%~ common:wrap (1+ (* i 2)) :size 5 %];
+   FS <= [%~ decode-function (nth 0 v) %]; -- [%~ nth 0 v %]
+   wait until falling_edge(CLK);
+
+   -- Demonstrate reset
+   RESET_N <= '1';
+   RESET_Z <= '1';
+   RESET_V <= '1';
+   RESET_C <= '1';
+   wait until falling_edge(CLK);
+   @]%]
+  [% common:end-test %]
+  @]) %]

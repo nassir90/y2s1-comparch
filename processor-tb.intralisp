@@ -1,0 +1,12 @@
+[%! "processor.intralisp" %]
+[% in-package :processor %]
+[% defun tb ()
+ (common:tb :name #'name :ports #'ports :clock t
+  :process [@^
+  wait until falling_edge(CLK);
+  RESET <= '1';
+  wait until falling_edge(CLK);
+  RESET <= '0';
+  [% dotimes (i 300) [@wait until falling_edge(CLK);
+  @]%]
+  @]) %]
