@@ -5,6 +5,7 @@
 (defvar cannonical-function-mappings (with-open-file (s "cannonical-functional-unit-functions.lisp") (read s)))
 
 (defun desugar (instruction)
+  "Sugar is bad for your health."
   (case (car instruction)
     (nop (append '(mov-a r0 r0 r0) (cdr instruction)))
     (nop-x (append '(mov-a) (cdr instruction)))
@@ -164,35 +165,42 @@ displacement.
 
 (defun compile-microcode-and-assembly (microcode assembly
                                        &key (microcode-start 66) (assembly-start 6))
-  (let ((microcode-1 (pass-1 microcode :address microcode-start)))
+  (let ((microcode-1 (pass-1 microcode :address microcode-start))
+        (assembly-1 (pass-1 assembly :address assembly-start)))
     (let ((microcode-labels (cdr (assoc 'labels microcode-1)))
-          (microcode-code (cdr (assoc 'code microcode-1))))
-      (let ((assembly-1 (pass-1 assembly :address assembly-start)))
-        (let ((assembly-labels (cdr (assoc 'labels assembly-1)))
-              (assembly-code (cdr (assoc 'code assembly-1))))
-          (values (pass-2-microcode microcode-code
-                                    :labels microcode-labels)
-                  (pass-2-assembly assembly-code
-                                   :labels assembly-labels
-                                   :control-labels microcode-labels
-                                   :address assembly-start)))))))
+          (microcode-code (cdr (assoc 'code microcode-1)))
+          (assembly-labels (cdr (assoc 'labels assembly-1)))
+          (assembly-code (cdr (assoc 'code assembly-1))))
+      (values (pass-2-microcode microcode-code
+                                :labels microcode-labels)
+              (pass-2-assembly assembly-code
+                               :labels assembly-labels
+                               :control-labels microcode-labels
+                               :address assembly-start)))))
+
+(defvar assembly-3 '((label _start)
+                     (4 4 6 6)
+                     (5 5 7 7)
+                     (6 6 8 8)
+                     (7 7 9 9)
+                     (:branch 8 8 _start)))
 
 (defvar assembly '((label start)
-                   (:immediate ldr= r0 _  14)
-                   (:immediate ldr= r1 _  14)
-                   (:immediate ldr= r2 _  14)
-                   (:immediate ldr= r3 _  14)
-                   (:immediate ldr= r4 _  14)
-                   (:immediate ldr= r5 _  14)
-                   (:immediate ldr= r6 _  14)
-                   (:immediate ldr= r7 _  14)
-                   (:immediate ldr= r8 _  14)
-                   (:immediate ldr= r9 _  14)
-                   (:immediate ldr= r10 _ 14)
+                   (:immediate ldr= r0  _ 14) ; R0 <- 14
+                   (:immediate ldr= r1  _ 14) ; R1 <- 14
+                   (:immediate ldr= r2  _ 14) ; R2 <- 14
+                   (:immediate ldr= r3  _ 14) ; R3 <- 14
+                   (:immediate ldr= r4  _ 14) ; R4 <- 14
+                   (:immediate ldr= r5  _ 14) ; R5 <- 14
+                   (:immediate ldr= r6  _ 14) ; R6 <- 14
+                   (:immediate ldr= r7  _ 14) ; R7 <- 14
+                   (:immediate ldr= r8  _ 14) ; R8 <- 14
+                   (:immediate ldr= r9  _ 14) ; R9 <- 14
+                   (:immediate ldr= r10 _ 14) ; R10 <- 14
                    
-                   (:immediate ldr= r0 _ 20)
-                   (:immediate ldr= r1 _ 31)
-                   (:immediate ldr= r5 _ 10)
+                   (:immediate ldr= r0 _ 20) ; R0 <- 20
+                   (:immediate ldr= r1 _ 31) ; R1 <- 31
+                   (:immediate ldr= r5 _ 10) ; R5 <- 10
                    (add r3 r0 r1) ; R3 <= R0 + R1 = 51
                    (str _ r5 r3) ; M[R5] <- R3
                    (ldr r10 r5 _) ; R10 <- M[R5] = 51
@@ -206,7 +214,7 @@ displacement.
                    (or r7 r7 r0) ; R7 <- R7 OR R9 = 212
                    (xor r7 r7 r7) ; R7 <- R7 XOR R7 = 0
                    (:branch beq _ close-call)
-                   (:word #xDEADBEEF)
+                   (:word #xDEADBEEF) ; Word we want to skip
                    (label close-call)
                    (inv r7 r3 _) ; R7 <- NOT(R3) = -52
                    (mov-b r8 _ r7); R8 <- R7 = -52
@@ -217,7 +225,7 @@ displacement.
 
 (defvar microcode `((label fetch)
                     ;; Load instruction register and increment PC (afterwards)
-                    (nop :pi 1 :il 1 :mc :control :rw 0 :mw 0 :mm :program-counter)
+                    (nop :pi 1 :il 1 :mc :control :mm :program-counter)
                     (nop :mc :opcode :ms always)
 
                     ,@(loop for function in cannonical-function-mappings append
