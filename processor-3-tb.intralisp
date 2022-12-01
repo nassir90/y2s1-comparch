@@ -30,8 +30,6 @@
   wait until falling_edge(CLK);
   
   wait until falling_edge(CLK);
-  
-  wait until falling_edge(CLK);
 
   -- Load the 12th instruction (pc=11) ?
   wait until falling_edge(CLK);
