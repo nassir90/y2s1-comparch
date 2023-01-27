@@ -4,7 +4,7 @@
 [% load "compiler.lisp" %]
 [% defvar compiled-microcode (compile-microcode-and-assembly microcode assembly) %]
 [% defun empty-at (i)
-[@"[%=~ "~51,'0b" (+ 66 i) %]"[%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
+[@[%~ parse-control-word (desugar `(nop :na ,i)) %][%~ if (= i (1- words)) "" "," %] -- 66 + [%= i %] = 0x[%=~ "~8,'0x" (+ 66 i) %]
 @]%]
 [% defun dump-micro-operations ()
  [@[% loop for i from 0 below 66 do [@    @] (empty-at i) %]
@@ -34,6 +34,6 @@ architecture Behavioral of [%~ name %] is
     );
   signal content : std_logic_vector(50 downto 0);
 begin
-  content <= rom(to_integer(unsigned(ADDRESS([%~ ceiling (log words 2) %] downto 0))));
+  content <= rom(to_integer(unsigned(ADDRESS([%~ 1- (ceiling (log words 2)) %] downto 0))));
 [% down 50 control-commands %]
 end Behavioral;@]%]

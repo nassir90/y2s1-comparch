@@ -1,3 +1,5 @@
+;; Written by Chinaza Uzoukwu
+
 (defclass ripple-section ()
   ((sum :initarg :sum)
    (a :initarg :a)

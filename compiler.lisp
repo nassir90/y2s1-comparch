@@ -1,3 +1,5 @@
+;; Written by Chinaza Uzoukwu
+
 (load "ripple.lisp")
 
 (defvar functional-unit-functions (with-open-file (s "functional-unit-functions.lisp") (read s)))
@@ -197,7 +199,6 @@ displacement.
                    (:immediate ldr= r8  _ 14) ; R8 <- 14
                    (:immediate ldr= r9  _ 14) ; R9 <- 14
                    (:immediate ldr= r10 _ 14) ; R10 <- 14
-                   
                    (:immediate ldr= r0 _ 20) ; R0 <- 20
                    (:immediate ldr= r1 _ 31) ; R1 <- 31
                    (:immediate ldr= r5 _ 10) ; R5 <- 10
@@ -214,6 +215,7 @@ displacement.
                    (or r7 r7 r0) ; R7 <- R7 OR R9 = 212
                    (xor r7 r7 r7) ; R7 <- R7 XOR R7 = 0
                    (:branch beq _ close-call)
+                   (label dead-beef)
                    (:word #xDEADBEEF) ; Word we want to skip
                    (label close-call)
                    (inv r7 r3 _) ; R7 <- NOT(R3) = -52
